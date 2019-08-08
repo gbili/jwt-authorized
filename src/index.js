@@ -1,6 +1,3 @@
-import MysqlReq from './MysqlReq';
-import MysqlInstantiatableReq from './MysqlInstantiatableReq';
-import MysqlDump from './MysqlDump';
+import DiContainer from './DiContainer';
 
-export { MysqlReq, MysqlDump, MysqlInstantiatableReq };
-export default MysqlReq;
+export default DiContainer;

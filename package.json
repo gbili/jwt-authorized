@@ -1,14 +1,14 @@
 {
-  "name": "mysql-oh-wait",
-  "version": "v0.5.0",
-  "description": "mysql wrapper with async / await returning results, single connection waranty per process",
+  "name": "di-why",
+  "version": "v0.0.1",
+  "description": "A static diy Dependency Injection Container and service locator",
   "main": "build/index.js",
   "scripts": {
     "clean": "rm -fr ./build/*",
     "prebuild": "npm run clean",
     "build": "babel -d ./build ./src",
     "coverage:generate": "nyc npm run test",
-    "coverage:check": "nyc check-coverage --lines 90 --branches 76 --statements 90 --functions 90",
+    "coverage:check": "nyc check-coverage --lines 70 --branches 70 --statements 70 --functions 70",
     "coverage:report": "nyc report --reporter=text-lcov > coverage.lcov",
     "coverage:report:upload": "CODECOV_TOKEN=\"$(grep \"CODECOV_TOKEN=\" .env | cut -d'=' -f2)\" codecov",
     "coverage": "npm run coverage:generate && npm run coverage:check && npm run coverage:report && npm run coverage:report:upload",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gbili/mysql-oh-wait.git"
+    "url": "https://github.com/gbili/di-why.git"
   },
   "keywords": [
     "nodejs",
@@ -39,9 +39,9 @@
   "author": "Guillermo Pages <mail@guillermo.at> (https://guillermo.at)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gbili/mysql-oh-wait/issues"
+    "url": "https://github.com/gbili/di-why/issues"
   },
-  "homepage": "https://github.com/gbili/mysql-oh-wait#readme",
+  "homepage": "https://github.com/gbili/di-why#readme",
   "devDependencies": {
     "@babel/cli": "7.4.4",
     "@babel/core": "7.4.5",
