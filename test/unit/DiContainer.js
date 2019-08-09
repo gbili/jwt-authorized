@@ -15,7 +15,19 @@ class Hello {
     return helloInjection;
   }
 }
+class HelloDestructureConstructorParams {
+  constructor(param1, param2, param3) {
+    this.param1 = param1;
+    this.param2 = param2;
+    this.param3 = param2;
+  }
+}
 const data = { a: 1, b: "2", c: Hello, };
+const data2 = { a: 1, b: "2", c: Hello, };
+const data3 = { a: 1, b: "2", c: Hello, };
+const data3Values = Object.values(data3);
+console.log('------------------------------------');
+console.log(data3Values);
 let afterWasExecuted = false;
 
 const stall = async function(stallTime = 3000) {
@@ -32,6 +44,15 @@ const injectionDict = {
       await stall(200);
       afterWasExecuted = true;
     }
+  },
+  'HelloObjDestructurableParams': {
+    constructible: HelloDestructureConstructorParams,
+    deps: data2,
+    destructureDeps: true,
+  },
+  'HelloArrayDestructurableParams': {
+    constructible: HelloDestructureConstructorParams,
+    deps: data3Values,
   },
   'emptyObject': {
     instance: {},
@@ -134,6 +155,25 @@ describe(`DiContainer`, function() {
       expect(di.has('HelloConstructible')).to.be.equal(true);
       const e = (await di.get('HelloConstructible')).injection.e;
       expect(e).to.be.equal('e');
+    });
+
+    it('should be able to load :constructible', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      expect(di.has('HelloObjDestructurableParams')).to.be.equal(false);
+      await di.loadAll();
+      expect(di.has('HelloObjDestructurableParams')).to.be.equal(true);
+      const aaa = await di.get('HelloObjDestructurableParams');
+      expect(aaa.param1).to.be.equal(data2.a);
+      expect(aaa.param2).to.be.equal(data2.b);
+    });
+    it('should be able to load :constructible', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      expect(di.has('HelloArrayDestructurableParams')).to.be.equal(false);
+      await di.loadAll();
+      expect(di.has('HelloArrayDestructurableParams')).to.be.equal(true);
+      const aaa = await di.get('HelloArrayDestructurableParams');
+      expect(aaa.param1).to.be.equal(data3.a);
+      expect(aaa.param2).to.be.equal(data3.b);
     });
   });
 

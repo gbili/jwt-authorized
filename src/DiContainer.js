@@ -34,10 +34,12 @@ class DiContainer {
     const el = this.loadDict[refName];
     let me = null;
 
-    let locateDeps = {};
-    let providedDeps = {};
+    let { destructureDeps } = el;
+    let locateDeps = null;
+    let providedDeps = null;
     if (el.hasOwnProperty('deps')) {
       providedDeps = el.deps;
+      destructureDeps = destructureDeps || Array.isArray(providedDeps);
     }
     if (el.hasOwnProperty('locateDeps')) {
       for (let key in el.locateDeps) {
@@ -49,11 +51,26 @@ class DiContainer {
         }
       }
       locateDeps = el.locateDeps;
+      destructureDeps = destructureDeps || Array.isArray(locateDeps);
     }
-    const deps = {
-      ...locateDeps,
-      ...providedDeps,
-    };
+    let deps = null;
+    if (destructureDeps) {
+      if (!Array.isArray(providedDeps)) {
+        providedDeps = (providedDeps && Object.values(providedDeps)) || [];
+      }
+      if (!Array.isArray(locateDeps)) {
+        locateDeps = (locateDeps && Object.values(locateDeps)) || [];
+      }
+      deps = [
+        ...locateDeps,
+        ...providedDeps,
+      ];
+    } else {
+      deps = {
+        ...(locateDeps || {}),
+        ...(providedDeps || {}),
+      };
+    }
 
     if (el.hasOwnProperty('injectable')) {
       try {
@@ -64,7 +81,13 @@ class DiContainer {
       me = el.injectable;
     }
     if (el.hasOwnProperty('constructible')) {
-      el.constructed = Object.keys(deps).length ? new el.constructible(deps) : new el.constructible();
+      if (destructureDeps) {
+        el.constructed = new el.constructible(...deps);
+      } else if (Object.keys(deps).length) {
+        el.constructed = new el.constructible(deps);
+      } else {
+        el.constructed = new el.constructible();
+      }
       me = el.constructed;
     }
     if (el.hasOwnProperty('instance')) {
