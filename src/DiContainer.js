@@ -22,6 +22,51 @@ class DiContainer {
     }
   }
 
+  async deepLocateDeps(locateDeps) {
+    const deps = (Array.isArray() && []) || {};
+    for (let key in locateDeps) {
+      const depNameOrNested = locateDeps[key];
+      try {
+        let dep = (
+          (typeof depNameOrNested !== 'string')
+            ? await this.deepLocateDeps(depNameOrNested)
+            : await this.get(depNameOrNested)
+        );
+        deps[key] = dep;
+      } catch (err) {
+        this.logger.log(`DiContainer:deepLocateDeps(${depName}):locateDeps error occured in .get()`, err);
+      }
+    }
+    return deps;
+  }
+
+  mergeObjects(a, b) {
+    if (Array.isArray(a) || Array.isArray(b)
+      || (typeof a === 'string' || typeof b === 'string')
+      || (typeof a === 'function' || typeof b === 'function')
+    ) {
+      return [a, b];
+    }
+    const bCopy = {...b}
+    const keysIntersection = [];
+    const bComplement = {};
+    for (let key in a) {
+      if (b.hasOwnProperty(key)) {
+        keysIntersection.push(key);
+      } else {
+        bComplement[key] = a[key];
+      }
+    }
+    for (let key of keysIntersection) {
+      bCopy[key] = this.mergeObjects(a[key], b[key]);
+    }
+    const merged = {
+      ...bComplement,
+      ...bCopy
+    };
+    return merged;
+  }
+
   async load(refName) {
     this.logger.log('DiContainer:Loading: ', refName);
     if (this.has(refName)) {
@@ -42,15 +87,7 @@ class DiContainer {
       destructureDeps = destructureDeps || Array.isArray(providedDeps);
     }
     if (el.hasOwnProperty('locateDeps')) {
-      for (let key in el.locateDeps) {
-        const depName = el.locateDeps[key];
-        try {
-          el.locateDeps[key] = await this.get(depName);
-        } catch (err) {
-          this.logger.log(`DiContainer:load(${depName}):locateDeps error occured in .get()`, err);
-        }
-      }
-      locateDeps = el.locateDeps;
+      locateDeps = await this.deepLocateDeps(el.locateDeps);
       destructureDeps = destructureDeps || Array.isArray(locateDeps);
     }
     let deps = null;
@@ -66,10 +103,7 @@ class DiContainer {
         ...providedDeps,
       ];
     } else {
-      deps = {
-        ...(locateDeps || {}),
-        ...(providedDeps || {}),
-      };
+      deps = this.mergeObjects((locateDeps || {}), (providedDeps || {}));
     }
 
     if (el.hasOwnProperty('injectable')) {

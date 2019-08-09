@@ -26,8 +26,6 @@ const data = { a: 1, b: "2", c: Hello, };
 const data2 = { a: 1, b: "2", c: Hello, };
 const data3 = { a: 1, b: "2", c: Hello, };
 const data3Values = Object.values(data3);
-console.log('------------------------------------');
-console.log(data3Values);
 let afterWasExecuted = false;
 
 const stall = async function(stallTime = 3000) {
@@ -53,6 +51,32 @@ const injectionDict = {
   'HelloArrayDestructurableParams': {
     constructible: HelloDestructureConstructorParams,
     deps: data3Values,
+  },
+  'HelloBefore': {
+    constructible: HelloDestructureConstructorParams,
+    before: async ({ deps, serviceLocator }) => {
+      const someDepNeedsToBePlacedInSpecialPlace = serviceLocator.get('HelloObjDestructurableParams');
+      return deps.a = someDepNeedsToBePlacedInSpecialPlace;
+    },
+    deps: data3Values,
+  },
+  'HelloNestedLocateDepsColliding': {
+    constructible: Hello,
+    deps: {
+      some: { nested: data2 }
+    },
+    locateDeps: {
+      some: { nested: 'HelloObjDestructurableParams' }
+    },
+  },
+  'HelloNestedLocateDepsNoCollide': {
+    constructible: Hello,
+    deps: {
+      some: { nested: data2 }
+    },
+    locateDeps: {
+      some: { otherNested: 'HelloObjDestructurableParams' }
+    },
   },
   'emptyObject': {
     instance: {},
@@ -104,6 +128,38 @@ describe(`DiContainer`, function() {
         .and.be.equal(d);
     });
   });
+
+  describe(`DiContainer.mergeObjects(a, b)`, function() {
+    it('should return an object with both merged (no collision)', function() {
+      const di = new DiContainer({ logger });
+      const o1 = {
+        a1: {
+          a2a: '-a2a'
+        },
+        b1: '-b1',
+        d1: '-d1',
+      };
+      const o2 = {
+        a1: {
+          a2a: '_a2a',
+          a2b: '_a2b'
+        },
+        b1: '_b1',
+        c1: '_c1'
+      };
+      const expected = {
+        a1: {
+          a2a: ['-a2a', '_a2a'],
+          a2b: '_a2b'
+        },
+        b1: ['-b1', '_b1'],
+        c1: '_c1',
+        d1: '-d1',
+      };
+      expect(di.mergeObjects(o1, o2)).to.be.deep.equal(expected);
+    });
+  });
+
 
   describe(`di.loadAll()`, function() {
     it('should be able to load :instance', async function() {
@@ -168,14 +224,39 @@ describe(`DiContainer`, function() {
     });
     it('should be able to load :constructible', async function() {
       const di = new DiContainer({ logger, load: injectionDict });
-      expect(di.has('HelloArrayDestructurableParams')).to.be.equal(false);
       await di.loadAll();
-      expect(di.has('HelloArrayDestructurableParams')).to.be.equal(true);
       const aaa = await di.get('HelloArrayDestructurableParams');
       expect(aaa.param1).to.be.equal(data3.a);
       expect(aaa.param2).to.be.equal(data3.b);
     });
+
+    it('should be able to load :constructible with locateDeps and deps which have common deep nested properties', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      await di.loadAll();
+      const aaa = await di.get('HelloNestedLocateDepsColliding');
+      const dep = await di.get('HelloObjDestructurableParams');
+      expect(aaa.injection).to.be.deep.equal({
+        some: {
+          nested: {...data2, ...dep}
+        },
+      });
+    });
+
+    it('should be able to load :constructible with locateDeps and deps which have common deep nested properties', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      await di.loadAll();
+      const aaa = await di.get('HelloNestedLocateDepsNoCollide');
+      const dep = await di.get('HelloObjDestructurableParams');
+      expect(aaa.injection).to.be.deep.equal({
+        some: {
+          nested: data2,
+          otherNested: dep,
+        },
+      });
+    });
+
   });
+
 
   describe(`di.get()`, function() {
     it('should be able to get an async loaded entry', async function() {
