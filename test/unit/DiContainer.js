@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { expect } from 'chai';
 import DiContainer from '../../src/DiContainer';
-import logger from 'saylo';
 
 let helloInjection = null;
 class Hello {
@@ -15,6 +14,7 @@ class Hello {
     return helloInjection;
   }
 }
+
 class HelloDestructureConstructorParams {
   constructor(param1, param2, param3) {
     this.param1 = param1;
@@ -22,6 +22,7 @@ class HelloDestructureConstructorParams {
     this.param3 = param2;
   }
 }
+
 const data = { a: 1, b: "2", c: Hello, };
 const data2 = { a: 1, b: "2", c: Hello, };
 const data3 = { a: 1, b: "2", c: Hello, };
@@ -30,6 +31,12 @@ let afterWasExecuted = false;
 
 const stall = async function(stallTime = 3000) {
   await new Promise(resolve => setTimeout(resolve, stallTime));
+};
+
+const logger = {
+  debug(...params) {
+    return console.log(...params);
+  },
 };
 
 const injectionDict = {
