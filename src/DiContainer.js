@@ -23,20 +23,25 @@ class DiContainer {
   }
 
   async deepLocateDeps(locateDeps) {
+    this.logger.log(`+++++++DiContainer:deepLocateDeps(locateDeps):locateDeps begin: `, locateDeps);
     const deps = (Array.isArray() && []) || {};
     for (let key in locateDeps) {
       const depNameOrNested = locateDeps[key];
+      this.logger.log(`DiContainer:deepLocateDeps(locateDeps): inside for key: `, key, ' depNameOrNested : ', depNameOrNested);
       try {
         let dep = (
           (typeof depNameOrNested !== 'string')
             ? await this.deepLocateDeps(depNameOrNested)
             : await this.get(depNameOrNested)
         );
+        this.logger.log(`DiContainer:deepLocateDeps(locateDeps): inside for key: `, key, ' resolved dep : ', dep);
         deps[key] = dep;
       } catch (err) {
         this.logger.log(`DiContainer:deepLocateDeps(${depName}):locateDeps error occured in .get()`, err);
       }
+      this.logger.log(`DiContainer:deepLocateDeps(locateDeps): inside for key: `, key, ' resolved DEPS : ', deps[key]);
     }
+    this.logger.log(`========DiContainer:deepLocateDeps(locateDeps): END:  resolved DEPS : `, deps);
     return deps;
   }
 
@@ -87,7 +92,9 @@ class DiContainer {
       destructureDeps = destructureDeps || Array.isArray(providedDeps);
     }
     if (el.hasOwnProperty('locateDeps')) {
+      this.logger.log('----------->---->------------------------- LOCATE DEP -----------', refName);
       locateDeps = await this.deepLocateDeps(el.locateDeps);
+      this.logger.log('-----------<----<------------------------- LOCATE DEP END-----------', refName);
       destructureDeps = destructureDeps || Array.isArray(locateDeps);
     }
     let deps = null;
@@ -138,6 +145,7 @@ class DiContainer {
   }
 
   async get(refName) {
+    this.isValidRefNameOrThrow(refName);
     if (!this.has(refName)) {
       if (!this.loadDict.hasOwnProperty(refName)) {
         throw new Error(`Trying to access inexistent ref: ${refName} available refs are: ${Object.keys(this.locatorRefDict).join('\n')}`);
@@ -152,6 +160,7 @@ class DiContainer {
   }
 
   set(refName, val) {
+    this.isValidRefNameOrThrow(refName);
     if (this.has(refName)) {
       this.logger.log('Replacing existent ref: ', refName);
     }
@@ -160,8 +169,15 @@ class DiContainer {
   }
 
   has(refName) {
+    this.isValidRefNameOrThrow(refName);
     this.logger.log('DiContainer:has(', refName, ')', Object.keys(this.locatorRefDict));
     return this.locatorRefDict.hasOwnProperty(refName);
+  }
+
+  isValidRefNameOrThrow(refName) {
+    if (typeof refName !== 'string') {
+      throw new Error('Can only reference locatables by strings: ', refName);
+    }
   }
 
   static inject({ logger }) {

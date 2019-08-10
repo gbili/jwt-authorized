@@ -1,7 +1,7 @@
 {
   "name": "di-why",
-  "version": "v0.7.0",
-  "description": "A static diy Dependency Injection Container and service locator",
+  "version": "v0.7.1",
+  "description": "A diy Dependency Injection Container and service locator",
   "main": "build/index.js",
   "scripts": {
     "clean": "rm -fr ./build/*",

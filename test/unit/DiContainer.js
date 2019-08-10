@@ -75,7 +75,16 @@ const injectionDict = {
       some: { nested: data2 }
     },
     locateDeps: {
-      some: { otherNested: 'HelloObjDestructurableParams' }
+      some: { otherNested: 'HelloObjDestructurableParams', moreNested: 'HelloNestedLocateDepsColliding' }
+    },
+  },
+  'HelloNestedLocateDepsDifferentLocateAndDepsKeys': {
+    constructible: Hello,
+    deps: {
+      some: { nested: data2 }
+    },
+    locateDeps: {
+      other: { otherNested: 'HelloObjDestructurableParams', moreNested: 'HelloNestedLocateDepsColliding' }
     },
   },
   'emptyObject': {
@@ -247,11 +256,30 @@ describe(`DiContainer`, function() {
       await di.loadAll();
       const aaa = await di.get('HelloNestedLocateDepsNoCollide');
       const dep = await di.get('HelloObjDestructurableParams');
+      const dep2 = await di.get('HelloNestedLocateDepsColliding');
       expect(aaa.injection).to.be.deep.equal({
         some: {
           nested: data2,
           otherNested: dep,
+          moreNested: dep2,
         },
+      });
+    });
+
+    it('should be able to load :constructible with locateDeps and deps which different deep nested properties', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      await di.loadAll();
+      const aaa = await di.get('HelloNestedLocateDepsDifferentLocateAndDepsKeys');
+      const dep = await di.get('HelloObjDestructurableParams');
+      const dep2 = await di.get('HelloNestedLocateDepsColliding');
+      expect(aaa.injection).to.be.deep.equal({
+        some: {
+          nested: data2,
+        },
+        other: {
+          otherNested: dep,
+          moreNested: dep2,
+        }
       });
     });
 
