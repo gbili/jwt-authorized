@@ -114,6 +114,7 @@ class DiContainer {
     }
 
     if (el.hasOwnProperty('injectable')) {
+      this.logger.debug(`DiContainer:load(${refName}):inject injectable deps`, deps);
       try {
         await el.injectable.inject(deps)
       } catch (err) {
@@ -122,13 +123,18 @@ class DiContainer {
       me = el.injectable;
     }
     if (el.hasOwnProperty('constructible')) {
+      this.logger.debug(`DiContainer:load(${refName}):inject constructible deps`, deps);
       if (destructureDeps) {
+        this.logger.debug(`DiContainer:load(${refName}):inject constructible destructureDeps`, deps);
         me = new el.constructible(...deps);
       } else if (Object.keys(deps).length) {
+        this.logger.debug(`DiContainer:load(${refName}):inject constructible deps keys length`, deps);
         me = new el.constructible(deps);
       } else {
+        this.logger.debug(`DiContainer:load(${refName}):inject constructible no destructure no keys length`, deps);
         me = new el.constructible();
       }
+      this.logger.debug(`DiContainer:load(${refName}):inject constructible deps`, deps, me);
     }
     if (el.hasOwnProperty('instance')) {
       me = el.instance;
