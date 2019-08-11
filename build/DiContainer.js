@@ -15,17 +15,24 @@ class DiContainer {
     logger,
     load
   }) {
-    console.log(logger);
     this.logger = logger || _logger;
-    console.log(logger.log('hi'));
-    console.log(this.logger.log('hey'));
     this.locatorRefDict = {};
     this.loadDict = load || {};
+    this.loading = false;
 
     _diContainers.push(this);
   }
 
   async loadAll(injectionDict) {
+    if (this.loading) {
+      if (!injectionDict) {
+        return;
+      } else {
+        throw new Error('TODO Need to implement this loading queue feature');
+      }
+    }
+
+    this.loading = true;
     injectionDict = injectionDict || {};
     this.loadDict = { ...this.loadDict,
       ...injectionDict
@@ -40,6 +47,8 @@ class DiContainer {
         this.logger.debug(`DiContainer:loadAll(${refName}):load error occured in .load()`, err);
       }
     }
+
+    this.loading = false;
   }
 
   async deepLocateDeps(locateDeps) {
