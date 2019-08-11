@@ -1,6 +1,10 @@
 import 'dotenv/config';
+import chai from 'chai';
 import { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import DiContainer from '../../src/DiContainer';
+
+chai.use(chaiAsPromised);
 
 let helloInjection = null;
 class Hello {
@@ -39,6 +43,16 @@ const logger = {
   },
 };
 
+class Hey {
+  constructor({hey}) {
+    this.hey = hey;
+  }
+
+  hoy(...params) {
+    this.hoy = params;
+  }
+}
+
 const injectionDict = {
   'Hello': {
     instance: Hello
@@ -48,6 +62,13 @@ const injectionDict = {
     after: async ({me, serviceLocator, el}) => {
       await stall(200);
       afterWasExecuted = true;
+    }
+  },
+  'Hey': {
+    constructible: Hey,
+    deps: { hey: 'hey' },
+    onHoyEvent({ me, params }) {
+      me.hoy(...params);
     }
   },
   'HelloObjDestructurableParams': {
@@ -322,6 +343,42 @@ describe(`DiContainer`, function() {
       const value = 'new value';
       di.set(key, value);
       expect(await di.get(key)).to.be.equal(value);
+    });
+  });
+
+  describe(`di.emit(<eventName>, <params>)`, function() {
+
+    it('should call <eventName>(<params>) on each el of injectionDict implementing it, and pass me and params as first param', async function() {
+      const injectionDict = {
+        'Hey': {
+          constructible: Hey,
+          deps: { hey: 'hey' },
+          async onHoyEvent({ serviceLocator, params }) {
+            const me = await serviceLocator.get('Hey');
+            me.hoy(...params);
+          }
+        },
+      }
+      const di = new DiContainer({ logger, load: injectionDict });
+      const param1 = { hey: 'hoy' };
+      const param2 = { hey2: 'hoy2' };
+      await di.emit('onHoyEvent', param1, param2);
+      const hey = await di.get('Hey');
+      expect(hey.hoy).to.be.deep.equal([param1, param2]);
+    });
+
+    it('should throw if listener is not a function', async function() {
+      const injectionDict = {
+        'Hey': {
+          constructible: Hey,
+          deps: { hey: 'hey' },
+          onHoyEvent: 'hey'
+        },
+      }
+      const di = new DiContainer({ logger, load: injectionDict });
+      const param1 = { hey: 'hoy' };
+      const param2 = { hey2: 'hoy2' };
+      expect(di.emit('onHoyEvent', param1, param2)).to.eventually.throw();
     });
   });
 

@@ -185,6 +185,23 @@ class DiContainer {
     }
   }
 
+  async emit(eventName, ...params) {
+    let listener = null;
+    for (let refName in this.loadDict) {
+      listener = this.loadDict[refName];
+      if (!listener.hasOwnProperty(eventName)) continue;
+      if (typeof listener[eventName] !== 'function') {
+        throw new Error(`Listener with ref: ${refName} of event ${eventName}, must have a callable ${eventName} function as prop`);
+      }
+      this.logger.debug('emitting :', eventName, 'on ref:', refName);
+      try {
+        await listener[eventName]({ serviceLocator: this, params});
+      } catch (err) {
+        this.logger.debug(`DiContainer:emit('${eventName}'):call:error on ${refName}`, err, listener);
+      }
+    }
+  }
+
   static inject({ logger }) {
     _logger = logger;
   }
@@ -202,6 +219,10 @@ class DiContainer {
       throw new Error('Out of range');
     }
     return _diContainers[n-1];
+  }
+
+  static getContainers() {
+    return _diContainers;
   }
 
 }
