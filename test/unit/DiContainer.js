@@ -1,10 +1,12 @@
 import 'dotenv/config';
 import chai from 'chai';
 import { expect } from 'chai';
+import logger from 'saylo';
 import chaiAsPromised from 'chai-as-promised';
 import DiContainer from '../../src/DiContainer';
 
 chai.use(chaiAsPromised);
+logger.turnOn('debug');
 
 let helloInjection = null;
 class Hello {
@@ -35,12 +37,6 @@ let afterWasExecuted = false;
 
 const stall = async function(stallTime = 3000) {
   await new Promise(resolve => setTimeout(resolve, stallTime));
-};
-
-const logger = {
-  debug(...params) {
-    return console.log(...params);
-  },
 };
 
 class Hey {

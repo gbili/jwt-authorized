@@ -3,7 +3,10 @@ let _logger = { debug(){}, };
 class DiContainer {
 
   constructor({ logger, load }) {
+    console.log(logger);
     this.logger = logger || _logger;
+    console.log(logger.log('hi'));
+    console.log(this.logger.log('hey'));
     this.locatorRefDict = {};
     this.loadDict = load || {};
     _diContainers.push(this);
