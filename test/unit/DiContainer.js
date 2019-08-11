@@ -307,6 +307,13 @@ describe(`DiContainer`, function() {
       });
     });
 
+    it('should return true on subsequent calls to loadAll()', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      expect(di.loadAll()).to.eventually.be.equal(false);
+      expect(di.loadAll()).to.eventually.be.equal(true);
+      expect(di.loadAll()).to.eventually.be.equal(true);
+    });
+
   });
 
 

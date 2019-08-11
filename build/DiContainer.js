@@ -19,6 +19,7 @@ class DiContainer {
     this.locatorRefDict = {};
     this.loadDict = load || {};
     this.loading = false;
+    this.loadPromises = {};
 
     _diContainers.push(this);
   }
@@ -26,7 +27,7 @@ class DiContainer {
   async loadAll(injectionDict) {
     if (this.loading) {
       if (!injectionDict) {
-        return;
+        return this.loading;
       } else {
         throw new Error('TODO Need to implement this loading queue feature');
       }
@@ -42,13 +43,23 @@ class DiContainer {
       this.logger.debug('loading :', refName);
 
       try {
-        await this.load(refName);
+        await this.getLoadPromise(refName);
       } catch (err) {
         this.logger.debug(`DiContainer:loadAll(${refName}):load error occured in .load()`, err);
       }
     }
 
     this.loading = false;
+    return this.loading;
+  }
+
+  addToLoadingPromisesIfNotAlreadyThere(refName, promise) {
+    if (this.loadingPromises.hasOwnProperty(refName)) {
+      return false;
+    }
+
+    this.loadingPromises[refName] = promise;
+    return true;
   }
 
   async deepLocateDeps(locateDeps) {
@@ -107,7 +118,7 @@ class DiContainer {
 
     if (this.has(refName)) {
       this.logger.debug('DiContainer:Already loaded: ', refName);
-      return;
+      return this.get(refName);
     }
 
     if (!this.loadDict.hasOwnProperty(refName)) {
@@ -196,25 +207,34 @@ class DiContainer {
       }
     }
 
-    this.set(refName, me);
+    return this.set(refName, me);
   }
 
   async get(refName) {
     this.isValidRefNameOrThrow(refName);
 
     if (!this.has(refName)) {
-      if (!this.loadDict.hasOwnProperty(refName)) {
-        throw new Error(`Trying to access inexistent ref: ${refName} available refs are: ${Object.keys(this.locatorRefDict).join('\n')}`);
-      }
-
       try {
-        await this.load(refName);
+        await this.getLoadPromise(refName);
       } catch (err) {
         this.logger.debug(`DiContainer:get(${refName}):load error occured in .load()`, err);
       }
     }
 
     return this.locatorRefDict[refName];
+  }
+
+  getLoadPromise(refName) {
+    if (!this.loadDict.hasOwnProperty(refName)) {
+      throw new Error(`Trying to access inexistent ref: ${refName} available refs are: ${Object.keys(this.locatorRefDict).join('\n')}`);
+    }
+
+    if (!this.loadPromises.hasOwnProperty(refName)) {
+      const promise = this.load(refName);
+      this.loadPromises[refName] = promise;
+    }
+
+    return this.loadPromises[refName];
   }
 
   set(refName, val) {
