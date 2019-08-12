@@ -195,8 +195,10 @@ class DiContainer {
     }
 
     if (el.hasOwnProperty('after')) {
+      let ret;
+
       try {
-        await el.after({
+        ret = await el.after({
           me,
           serviceLocator: this,
           el,
@@ -204,6 +206,10 @@ class DiContainer {
         });
       } catch (err) {
         this.logger.debug(`DiContainer:load(${refName}):after error occured in .after()`, err);
+      }
+
+      if (ret !== undefined) {
+        me = ret;
       }
     }
 

@@ -58,7 +58,7 @@ const injectionDict = {
     after: async ({me, serviceLocator, el}) => {
       await stall(200);
       afterWasExecuted = true;
-    }
+    },
   },
   'Hey': {
     constructible: Hey,
@@ -119,17 +119,21 @@ const injectionDict = {
     after: async ({me, serviceLocator, el}) => {
       const data = await serviceLocator.get('data');
       serviceLocator.set('emptyObject', data);
-    }
+    },
   },
   'HelloStaticInjectable': {
     injectable: Hello,
     deps: data,
-    after: ({ me }) => (me.getInjection().d = 'd'),
+    after: ({ me }) => {
+      me.getInjection().d = 'd';
+    },
   },
   'HelloConstructible': {
     constructible: Hello,
     deps: data,
-    after: ({ me }) => (me.injection.e = 'e'),
+    after: ({ me }) => {
+      me.injection.e = 'e';
+    },
   },
 };
 
@@ -209,6 +213,21 @@ describe(`DiContainer`, function() {
       await di.loadAll();
       expect(di.has('data')).to.be.equal(true);
       expect(afterWasExecuted).to.be.equal(true);
+    });
+
+    it('should be able to load :instance execute after and replace me with after return value if not null', async function() {
+      const injDict = {
+        'WillBeReplaced': {
+          instance: 'ThisValueWillBeReplaced',
+          after({me, serviceLocator}) {
+            return 'ReplacedByThis';
+          },
+        },
+      };
+      const di = new DiContainer({ logger, load: injDict });
+      await di.loadAll();
+      expect(di.has('WillBeReplaced')).to.be.equal(true);
+      expect(await di.get('WillBeReplaced')).to.be.equal('ReplacedByThis');
     });
 
     it('should be able to load :instance and give access to serviceLocator in after callback', async function() {
@@ -327,6 +346,7 @@ describe(`DiContainer`, function() {
       expect(afterWasExecuted).to.be.equal(true);
     });
   });
+
 
   describe(`di.set()`, function() {
     it('should be able to set a non existent entry', async function() {

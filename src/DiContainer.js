@@ -160,10 +160,14 @@ class DiContainer {
       me = el.instance;
     }
     if (el.hasOwnProperty('after')) {
+      let ret;
       try {
-        await el.after({ me, serviceLocator: this, el, deps });
+        ret = await el.after({ me, serviceLocator: this, el, deps });
       } catch (err) {
         this.logger.debug(`DiContainer:load(${refName}):after error occured in .after()`, err);
+      }
+      if (ret !== undefined) {
+        me = ret;
       }
     }
     return this.set(refName, me);
