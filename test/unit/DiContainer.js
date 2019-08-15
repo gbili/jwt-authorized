@@ -93,6 +93,17 @@ const injectionDict = {
       some: { nested: 'HelloObjDestructurableParams' }
     },
   },
+  'HelloFactoryNestedLocateDepsColliding': {
+    factory: function({ some }) {
+      return new Hello({ some });
+    },
+    deps: {
+      some: { nested: data2 }
+    },
+    locateDeps: {
+      some: { nested: 'HelloObjDestructurableParams' }
+    },
+  },
   'HelloNestedLocateDepsNoCollide': {
     constructible: Hello,
     deps: {
@@ -256,16 +267,7 @@ describe(`DiContainer`, function() {
       expect(e).to.be.equal('e');
     });
 
-    it('should be able to load :constructible', async function() {
-      const di = new DiContainer({ logger, load: injectionDict });
-      expect(di.has('HelloConstructible')).to.be.equal(false);
-      await di.loadAll();
-      expect(di.has('HelloConstructible')).to.be.equal(true);
-      const e = (await di.get('HelloConstructible')).injection.e;
-      expect(e).to.be.equal('e');
-    });
-
-    it('should be able to load :constructible', async function() {
+    it('should be able to load :constructible with destructurable params', async function() {
       const di = new DiContainer({ logger, load: injectionDict });
       expect(di.has('HelloObjDestructurableParams')).to.be.equal(false);
       await di.loadAll();
@@ -273,13 +275,6 @@ describe(`DiContainer`, function() {
       const aaa = await di.get('HelloObjDestructurableParams');
       expect(aaa.param1).to.be.equal(data2.a);
       expect(aaa.param2).to.be.equal(data2.b);
-    });
-    it('should be able to load :constructible', async function() {
-      const di = new DiContainer({ logger, load: injectionDict });
-      await di.loadAll();
-      const aaa = await di.get('HelloArrayDestructurableParams');
-      expect(aaa.param1).to.be.equal(data3.a);
-      expect(aaa.param2).to.be.equal(data3.b);
     });
 
     it('should be able to load :constructible with locateDeps and deps which have common deep nested properties', async function() {
@@ -323,6 +318,18 @@ describe(`DiContainer`, function() {
           otherNested: dep,
           moreNested: dep2,
         }
+      });
+    });
+
+    it('should be able to load :factory with locateDeps and deps which have common deep nested properties', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      await di.loadAll();
+      const aaa = await di.get('HelloFactoryNestedLocateDepsColliding');
+      const dep = await di.get('HelloObjDestructurableParams');
+      expect(aaa.injection).to.be.deep.equal({
+        some: {
+          nested: {...data2, ...dep}
+        },
       });
     });
 

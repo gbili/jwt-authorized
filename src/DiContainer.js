@@ -156,6 +156,20 @@ class DiContainer {
       }
       this.logger.debug(`DiContainer:load(${refName}):inject constructible deps`, deps, me);
     }
+    if (el.hasOwnProperty('factory')) {
+      this.logger.debug(`DiContainer:load(${refName}):inject factory deps`, deps);
+      if (destructureDeps) {
+        this.logger.debug(`DiContainer:load(${refName}):inject factory destructureDeps`, deps);
+        me = el.factory(...deps);
+      } else if (Object.keys(deps).length) {
+        this.logger.debug(`DiContainer:load(${refName}):inject factory deps keys length`, deps);
+        me = el.factory(deps);
+      } else {
+        this.logger.debug(`DiContainer:load(${refName}):inject factory no destructure no keys length`, deps);
+        me = el.factory();
+      }
+      this.logger.debug(`DiContainer:load(${refName}):inject factory deps`, deps, me);
+    }
     if (el.hasOwnProperty('instance')) {
       me = el.instance;
     }
