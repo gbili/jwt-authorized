@@ -1,6 +1,6 @@
 {
   "name": "di-why",
-  "version": "v0.10.0",
+  "version": "v0.11.0",
   "description": "A diy Dependency Injection Container and service locator",
   "main": "build/index.js",
   "scripts": {
