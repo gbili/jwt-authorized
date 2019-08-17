@@ -143,6 +143,8 @@ class DiContainer {
       }
       if (ret !== undefined) {
         deps = ret;
+      } else {
+        this.logger.debug(`DiContainer:load(${refName}):before your .before() is returning undefined as deps is it on purpose?`, err);
       }
     }
 
