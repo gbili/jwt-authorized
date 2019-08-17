@@ -76,7 +76,7 @@ class DiContainer {
         this.logger.debug(`DiContainer:deepLocateDeps(locateDeps): inside for key: `, key, ' resolved dep : ', dep);
         deps[key] = dep;
       } catch (err) {
-        this.logger.debug(`DiContainer:deepLocateDeps(${depName}):locateDeps error occured in .get()`, err);
+        this.logger.debug(`DiContainer:deepLocateDeps(${depNameOrNested}):locateDeps error occured in .get()`, err);
         throw err;
       }
 
