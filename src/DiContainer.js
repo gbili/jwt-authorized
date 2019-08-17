@@ -28,6 +28,7 @@ class DiContainer {
         await this.getLoadPromise(refName);
       } catch (err) {
         this.logger.debug(`DiContainer:loadAll(${refName}):load error occured in .load()`, err);
+        throw err;
       }
     }
     this.loading = false;
@@ -58,6 +59,7 @@ class DiContainer {
         deps[key] = dep;
       } catch (err) {
         this.logger.debug(`DiContainer:deepLocateDeps(${depName}):locateDeps error occured in .get()`, err);
+        throw err;
       }
       this.logger.debug(`DiContainer:deepLocateDeps(locateDeps): inside for key: `, key, ' resolved DEPS : ', deps[key]);
     }
@@ -112,9 +114,7 @@ class DiContainer {
       destructureDeps = destructureDeps || Array.isArray(providedDeps);
     }
     if (el.hasOwnProperty('locateDeps')) {
-      this.logger.debug('----------->---->------------------------- LOCATE DEP -----------', refName);
       locateDeps = await this.deepLocateDeps(el.locateDeps);
-      this.logger.debug('-----------<----<------------------------- LOCATE DEP END-----------', refName);
       destructureDeps = destructureDeps || Array.isArray(locateDeps);
     }
     let deps = null;
@@ -133,15 +133,30 @@ class DiContainer {
       deps = this.mergeObjects((locateDeps || {}), (providedDeps || {}));
     }
 
+    if (el.hasOwnProperty('before')) {
+      let ret = null;
+      try {
+        ret = await el.before({ deps, serviceLocator: this, el, });
+      } catch (err) {
+        this.logger.debug(`DiContainer:load(${refName}):before error occured in .before()`, err);
+        throw err;
+      }
+      if (ret !== undefined) {
+        deps = ret;
+      }
+    }
+
     if (el.hasOwnProperty('injectable')) {
       this.logger.debug(`DiContainer:load(${refName}):inject injectable deps`, deps);
       try {
         await el.injectable.inject(deps)
       } catch (err) {
         this.logger.debug(`DiContainer:load(${refName}):inject error occured in .inject()`, err);
+        throw err;
       }
       me = el.injectable;
     }
+
     if (el.hasOwnProperty('constructible')) {
       this.logger.debug(`DiContainer:load(${refName}):inject constructible deps`, deps);
       if (destructureDeps) {
@@ -156,6 +171,7 @@ class DiContainer {
       }
       this.logger.debug(`DiContainer:load(${refName}):inject constructible deps`, deps, me);
     }
+
     if (el.hasOwnProperty('factory')) {
       this.logger.debug(`DiContainer:load(${refName}):inject factory deps`, deps);
       if (destructureDeps) {
@@ -170,20 +186,24 @@ class DiContainer {
       }
       this.logger.debug(`DiContainer:load(${refName}):inject factory deps`, deps, me);
     }
+
     if (el.hasOwnProperty('instance')) {
       me = el.instance;
     }
+
     if (el.hasOwnProperty('after')) {
       let ret;
       try {
         ret = await el.after({ me, serviceLocator: this, el, deps });
       } catch (err) {
         this.logger.debug(`DiContainer:load(${refName}):after error occured in .after()`, err);
+        throw err;
       }
       if (ret !== undefined) {
         me = ret;
       }
     }
+
     return this.set(refName, me);
   }
 
@@ -194,6 +214,7 @@ class DiContainer {
         await this.getLoadPromise(refName);
       } catch (err) {
         this.logger.debug(`DiContainer:get(${refName}):load error occured in .load()`, err);
+        throw err;
       }
     }
     return this.locatorRefDict[refName];
@@ -246,6 +267,7 @@ class DiContainer {
         await listener[eventName]({ serviceLocator: this, params});
       } catch (err) {
         this.logger.debug(`DiContainer:emit('${eventName}'):call:error on ${refName}`, err, listener);
+        throw err;
       }
     }
   }

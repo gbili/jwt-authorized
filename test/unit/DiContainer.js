@@ -77,12 +77,18 @@ const injectionDict = {
     deps: data3Values,
   },
   'HelloBefore': {
-    constructible: HelloDestructureConstructorParams,
+    constructible: Hello,
     before: async ({ deps, serviceLocator }) => {
-      const someDepNeedsToBePlacedInSpecialPlace = serviceLocator.get('HelloObjDestructurableParams');
-      return deps.a = someDepNeedsToBePlacedInSpecialPlace;
+      const someDepNeedsToBePlacedInSpecialPlace = await serviceLocator.get('HelloObjDestructurableParams');
+      if (typeof deps.data3Values === 'undefined') {
+        throw new Error('Deps have not been injected properly');
+      }
+      deps.additionFromBefore = someDepNeedsToBePlacedInSpecialPlace;
+      return deps;
     },
-    deps: data3Values,
+    deps: {
+      data3Values
+    },
   },
   'HelloNestedLocateDepsColliding': {
     constructible: Hello,
@@ -331,6 +337,14 @@ describe(`DiContainer`, function() {
           nested: {...data2, ...dep}
         },
       });
+    });
+
+    it('should be able to run before() and alter the deps passed in constructor', async function() {
+      const di = new DiContainer({ logger, load: injectionDict });
+      await di.loadAll();
+      const aaa = await di.get('HelloBefore');
+      expect(typeof aaa.injection).to.not.be.equal('undefined');
+      expect(typeof aaa.injection.additionFromBefore).to.not.be.equal('undefined');
     });
 
     it('should return true on subsequent calls to loadAll()', async function() {
