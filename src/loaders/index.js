@@ -1,10 +1,8 @@
 import tokenAuthService from './tokenAuthService';
-import getExpirationTime from './getExpirationTime';
 
 const loadThroughDi = function({ di, diMethodName, logger, events }) {
   const injectionDict = {
     tokenAuthService,
-    getExpirationTime,
   };
 
   if (!logger && !di.has('logger')) {
