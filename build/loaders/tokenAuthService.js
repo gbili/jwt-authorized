@@ -13,6 +13,7 @@ var _tokenConfigGenerator = _interopRequireDefault(require("../config/tokenConfi
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+const hoursBeforeExpire = process.env.JWT_HOURS_BEFORE_EXPIRE || 1;
 var _default = {
   constructible: _TokenAuthService.default,
   deps: {
@@ -20,7 +21,7 @@ var _default = {
       TokenUser: _models.TokenUser
     },
     tokenConfig: (0, _tokenConfigGenerator.default)({
-      expireTokensEveryNHours: 1
+      expireTokensEveryNHours: hoursBeforeExpire
     })
   },
   locateDeps: {

@@ -6,7 +6,13 @@ Object.defineProperty(exports, "__esModule", {
 Object.defineProperty(exports, "loadThroughDi", {
   enumerable: true,
   get: function () {
-    return _loaders.default;
+    return _loaders.loadThroughDi;
+  }
+});
+Object.defineProperty(exports, "tokenAuthService", {
+  enumerable: true,
+  get: function () {
+    return _loaders.tokenAuthService;
   }
 });
 Object.defineProperty(exports, "TokenAuthService", {
@@ -35,7 +41,7 @@ Object.defineProperty(exports, "tokenConfigGenerator", {
 });
 exports.default = void 0;
 
-var _loaders = _interopRequireDefault(require("./loaders"));
+var _loaders = require("./loaders");
 
 var _TokenAuthService = _interopRequireDefault(require("./services/TokenAuthService"));
 
@@ -47,5 +53,5 @@ var _tokenConfigGenerator = _interopRequireDefault(require("./config/tokenConfig
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _default = _loaders.default;
+var _default = _loaders.loadThroughDi;
 exports.default = _default;

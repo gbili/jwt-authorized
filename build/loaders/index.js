@@ -3,7 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+Object.defineProperty(exports, "tokenAuthService", {
+  enumerable: true,
+  get: function () {
+    return _tokenAuthService.default;
+  }
+});
+exports.default = exports.loadThroughDi = void 0;
 
 var _tokenAuthService = _interopRequireDefault(require("./tokenAuthService"));
 
@@ -39,5 +45,6 @@ const loadThroughDi = function ({
   return di;
 };
 
+exports.loadThroughDi = loadThroughDi;
 var _default = loadThroughDi;
 exports.default = _default;
