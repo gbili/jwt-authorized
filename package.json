@@ -1,6 +1,6 @@
 {
-  "name": "auth-jwt",
-  "version": "v0.0.1",
+  "name": "jwt-authorized",
+  "version": "v0.0.2",
   "description": "Json Web Token Authorization Strategy",
   "main": "build/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gbili/auth-jwt.git"
+    "url": "https://github.com/gbili/jwt-authorized.git"
   },
   "keywords": [
     "nodejs",
@@ -35,9 +35,9 @@
   "author": "Guillermo Pages <mail@guillermo.at> (https://guillermo.at)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gbili/auth-jwt/issues"
+    "url": "https://github.com/gbili/jwt-authorized/issues"
   },
-  "homepage": "https://github.com/gbili/auth-jwt#readme",
+  "homepage": "https://github.com/gbili/jwt-authorized#readme",
   "devDependencies": {
     "@babel/cli": "7.4.4",
     "@babel/core": "7.4.5",

@@ -1,56 +1,84 @@
-# Nomonichas
-![code coverage](https://img.shields.io/codecov/c/github/gbili/mysql-oh-wait.svg)
-![version](https://img.shields.io/npm/v/mysql-oh-wait.svg)
-![downloads](https://img.shields.io/npm/dm/mysql-oh-wait.svg)
-![license](https://img.shields.io/npm/l/mysql-oh-wait.svg)
+![code coverage](https://img.shields.io/codecov/c/github/gbili/jwt-authorized.svg)
+![version](https://img.shields.io/npm/v/jwt-authorized.svg)
+![downloads](https://img.shields.io/npm/dm/jwt-authorized.svg)
+![license](https://img.shields.io/npm/l/jwt-authorized.svg)
 
-# Mysql Oh Wait! (Mysql await)
-Uses the great node `mysqljs/mysql` package and wraps around it to facilitate getting results as a return from `MysqlReq.query()`. Instead of needing to use callbacks, this package uses `Promises` and the `async / await` syntax which is much easier.
-On top of that the advantage (if you need this feature of course) is that you don't need to worry about `connections` not being closed or open at the moment of querying.
+# Auth JWT
 
-## Installation
-To install this npm package do
-
-```
-npm i -P mysql-oh-wait
-```
+Use Json Web Tokens to authorize requests via `Authorization: Bearer <your-token>`
 
 ## Usage
-### MysqlReq
-Then from your javascript files import either `MysqlReq` or `MysqlDump` with
+
+**IMPORTANT**: add the private key to your env, if you are using `HS256` (default)
 ```javascript
-//var MysqlReq = require('mysql-oh-wait').MysqlReq;
-import { MysqlReq } from 'mysql-oh-wait';
+process.env.JWT_KEY_PRIVATE = 'mysecret key'
 ```
-
-Then you can directly query your database:
+**IMPORTANT**: add the private plus public keys to your env, if you are using `HMAC` (*currently not supported*)
 ```javascript
-//import 'dotenv/config'; // this will get connection settings from .env file
-
-import { MysqlReq, MysqlDump } from 'mysql-oh-wait';
-
-const res = await MysqlReq.query({sql: 'SELECT * FROM MyTable WHERE ?', values: {myCol: 'myValue'}});
-console.log(res); // [ { myCol: 'myValue', ...otherColumns }, { myCol: 'myValue', ...otherColumns2 }, ...otherRows ]
+process.env.JWT_KEY_PUBLIC = 'some generated public key'
 ```
 
-This is assuming you have set the connection details in environement variables like:
-```
-process.env.DB_HOST = 'myhost'
-process.env.DB_USER = 'myuser'
-process.env.DB_PASSWORD = 'mypwd'
-process.env.DB_NAME = 'mydbname'
-```
-Or you can store these in a `.env` file. In which case the `import 'dotenv/config';` statement will load them for you. (You need to `npm i -P dotenv` for this to work.
-
-### MysqlDump
-If you want to create the database tables from an sql file you can use `MysqlDump`
+### Header Authorization Token Extractor
+If you are using apollo, you might want to insert the `token` authorization into `context`. This can be acheived like so:
 ```javascript
-//var MysqlDump = require('mysql-oh-wait').MysqlDump;
-import { MysqlDump } from 'mysql-oh-wait';
+import HeaderAuthTokenExtractor from 'jwt-authorized';
+import templateStatusMessages from '../config/templateStatusMessages';
+
+// some context that you want
+const context = {
+  authService: await serviceLocator.get('authService'),
+  templateStatusMessages,
+};
+
+ApolloServer({
+  //...
+  context: HeaderAuthTokenExtractor.getAsyncContextReqMethod(context)
+});
 ```
-Then if you have an mysqldump file somewhere you can simply do:
+
+### TokenAuthService
+
+First of all you need to load it somehow, either:
+Use `di-why` dependency injection
 ```javascript
-import { MysqlDump } from 'mysql-oh-wait';
-await MysqlDump.executeSqlFile(`${__dirname}/mysqldump.sql`);
+import { TokenAuthService, TokenUser, tokenConfigGenerator } from 'jwt-authorized';
+
+export default {
+  constructible: TokenAuthService,
+  deps: {
+    models: {
+      TokenUser
+    },
+    tokenConfig: tokenConfigGenerator({ expireTokensEveryNHours: 1 }),
+  },
+  locateDeps: {
+    events : 'events',
+  },
+};
 ```
-This should have loaded all your tables in the database. Again, assuming you have database connection config in `process.env.DB_...` properties.
+Or alternatively do it manually:
+```javascript
+import { TokenAuthService, TokenUser, tokenConfigGenerator } from 'jwt-authorized';
+//import events from ...
+
+const tokenAuthService = TokenAuthService({
+  models: {
+    TokenUser,
+  },
+  tokenConfig: tokenConfigGenerator({ expireTokensEveryNHours: 1 }),
+  events,
+};
+```
+
+Once it is loaded, you can authorize requests from **within** apollo resolvers:
+```javascript
+//within a resolver get the token from the context
+const { token, tokenAuthService } = context;
+const tokenPayload = tokenAuthService.verifyToken({token})
+if (!tokenPayload) {
+  throw new Errr('Hey you are not legit!');
+}
+// or
+const { token, tokenAuthService } = context;
+const tokenUser = tokenAuthService.authenticateTokenStrategy({token})
+```
