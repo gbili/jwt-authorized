@@ -13,6 +13,6 @@ export default {
     tokenConfig: tokenConfigGenerator({ expireTokensEveryNHours: hoursBeforeExpire }),
   },
   locateDeps: {
-    events : 'events',
+    events: 'events',
   },
 };

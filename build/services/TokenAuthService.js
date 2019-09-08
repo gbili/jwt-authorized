@@ -27,15 +27,15 @@ class TokenAuthService {
     });
 
     if (!jsonPayload) {
-      this.events.emit('AuthService:authenticateTokenStrategy:fail', token);
-      throw new Error('AuthService:authenticateTokenStrategy() authentication fail', token);
+      this.events.emit('TokenAuthService:authenticateTokenStrategy:fail', token);
+      throw new Error('TokenAuthService:authenticateTokenStrategy() authentication fail', token);
     }
 
     const payload = JSON.parse(jsonPayload);
 
     if (!payload.exp || !payload.aud) {
-      this.events.emit('AuthService:authenticateTokenStrategy:fail token was malformed by server', token);
-      throw new Error('AuthService:authenticateTokenStrategy() authentication fail', token);
+      this.events.emit('TokenAuthService:authenticateTokenStrategy:fail token was malformed by server', token);
+      throw new Error('TokenAuthService:authenticateTokenStrategy() authentication fail', token);
     }
 
     const {
@@ -44,8 +44,8 @@ class TokenAuthService {
     } = payload;
 
     if (expirationTime <= this.tokenConfig.now()) {
-      this.events.emit('AuthService:authenticateTokenStrategy:fail expired token', token);
-      throw new Error('AuthService:authenticateTokenStrategy() authentication fail, please login again', token);
+      this.events.emit('TokenAuthService:authenticateTokenStrategy:fail expired token', token);
+      throw new Error('TokenAuthService:authenticateTokenStrategy() authentication fail, please login again', token);
     }
 
     const tokenUser = new TokenUser({
@@ -54,7 +54,7 @@ class TokenAuthService {
       },
       token
     });
-    this.events.emit('AuthService:authenticateTokenStrategy:success', tokenUser);
+    this.events.emit('TokenAuthService:authenticateTokenStrategy:success', tokenUser);
     return tokenUser;
   }
 
@@ -70,32 +70,32 @@ class TokenAuthService {
     let secret = null;
 
     if (!keys.privateKey) {
-      throw new Error('AuthService:verifyToken() bad configuration, need at least a keys.privateKey', algorithm);
+      throw new Error('TokenAuthService:verifyToken() bad configuration, need at least a keys.privateKey', algorithm);
     }
 
     if (algorithm.charAt(0) === 'H') {
       secret = keys.privateKey;
     } else if (algorithm.charAt(0) === 'R') {
       if (!keys.publicKey) {
-        throw new Error('AuthService:verifyToken() bad configuration, need a keys.publicKey with RSA algorithm', algorithm);
+        throw new Error('TokenAuthService:verifyToken() bad configuration, need a keys.publicKey with RSA algorithm', algorithm);
       }
 
       secret = keys.publicKey;
     } else {
-      throw new Error('AuthService:verifyToken() unsupported encryption algorithm', algorithm);
+      throw new Error('TokenAuthService:verifyToken() unsupported encryption algorithm', algorithm);
     }
 
     const tokenMatchesSecret = engine.verify(token, algorithm, secret);
 
     if (!tokenMatchesSecret) {
-      this.events.emit('AuthService:verifyToken:fail', token);
+      this.events.emit('TokenAuthService:verifyToken:fail', token);
       return false;
     }
 
     const {
       payload
     } = engine.decode(token);
-    this.events.emit('AuthService:verifyToken:success', payload);
+    this.events.emit('TokenAuthService:verifyToken:success', payload);
     return payload;
   }
   /**
@@ -127,7 +127,7 @@ class TokenAuthService {
       secret
     };
     const token = engine.sign(options);
-    this.events.emit('AuthService:generateToken:success', token);
+    this.events.emit('TokenAuthService:generateToken:success', token);
     return token;
   }
 
