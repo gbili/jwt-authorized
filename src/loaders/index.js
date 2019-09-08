@@ -25,4 +25,5 @@ const loadThroughDi = function({ di, diMethodName, logger, events }) {
   return di;
 };
 
+export { loadThroughDi, tokenAuthService }
 export default loadThroughDi;
