@@ -7,8 +7,6 @@ exports.default = void 0;
 
 var _tokenAuthService = _interopRequireDefault(require("./tokenAuthService"));
 
-var _getExpirationTime = _interopRequireDefault(require("./getExpirationTime"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const loadThroughDi = function ({
@@ -18,8 +16,7 @@ const loadThroughDi = function ({
   events
 }) {
   const injectionDict = {
-    tokenAuthService: _tokenAuthService.default,
-    getExpirationTime: _getExpirationTime.default
+    tokenAuthService: _tokenAuthService.default
   };
 
   if (!logger && !di.has('logger')) {
