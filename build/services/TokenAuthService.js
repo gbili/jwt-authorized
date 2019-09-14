@@ -40,7 +40,7 @@ class TokenAuthService {
 
     const {
       exp: expirationTime,
-      aud: ID
+      aud: UUID
     } = payload;
 
     if (expirationTime <= this.tokenConfig.now()) {
@@ -50,7 +50,7 @@ class TokenAuthService {
 
     const tokenUser = new TokenUser({
       userInfo: {
-        ID
+        UUID
       },
       token
     });
@@ -121,7 +121,7 @@ class TokenAuthService {
         alg: algorithm
       },
       payload: {
-        aud: user.ID,
+        aud: user.UUID,
         exp: expiresIn()
       },
       secret
