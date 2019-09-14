@@ -22,14 +22,14 @@ export default class TokenAuthService {
       throw new Error('TokenAuthService:authenticateTokenStrategy() authentication fail', token);
     }
 
-    const { exp: expirationTime, aud: ID, } = payload;
+    const { exp: expirationTime, aud: UUID, } = payload;
 
     if (expirationTime <= this.tokenConfig.now()) {
       this.events.emit('TokenAuthService:authenticateTokenStrategy:fail expired token', token);
       throw new Error('TokenAuthService:authenticateTokenStrategy() authentication fail, please login again', token);
     }
 
-    const tokenUser = new TokenUser({ userInfo: { ID }, token });
+    const tokenUser = new TokenUser({ userInfo: { UUID }, token });
     this.events.emit('TokenAuthService:authenticateTokenStrategy:success', tokenUser);
 
     return tokenUser;
@@ -79,7 +79,7 @@ export default class TokenAuthService {
         alg: algorithm
       },
       payload: {
-        aud: user.ID,
+        aud: user.UUID,
         exp: expiresIn(),
       },
       secret
