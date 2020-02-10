@@ -3,7 +3,7 @@ import { TokenUser } from '../models';
 import tokenConfigGenerator from '../config/tokenConfigGenerator';
 
 const hoursBeforeExpire = process.env.JWT_HOURS_BEFORE_EXPIRE || 1;
-const algorithm = process.env.JWT_ALGORITHM || 'HMAC';
+const algorithm = process.env.JWT_ALGORITHM || 'HS256';
 const privateKey = process.env.JWT_KEY_PRIVATE || null;
 const publicKey = process.env.JWT_KEY_PUBLIC || null;
 
