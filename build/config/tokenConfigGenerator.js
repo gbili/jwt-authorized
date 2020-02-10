@@ -14,16 +14,21 @@ const nHoursFromNow = n => {
 };
 
 function _default({
-  expireTokensEveryNHours
+  expireTokensEveryNHours,
+  algorithm,
+  keys
 }) {
+  if (!algorithm || !keys.publicKey && !keys.privateKey) {
+    console.log(algorithm, keys);
+    throw new Error(`Bad configuration, not enough keys need RSA with either publicKey or privateKey, or HMAC with privateKey`);
+  }
+
   return {
     engine: _jws.default,
     expiresIn: nHoursFromNow(expireTokensEveryNHours),
     now: nHoursFromNow(0),
-    algorithm: 'HS256',
-    keys: {
-      privateKey: process.env.JWT_KEY_PRIVATE
-    }
+    algorithm,
+    keys
   };
 }
 
