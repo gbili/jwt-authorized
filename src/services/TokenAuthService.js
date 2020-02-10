@@ -38,17 +38,14 @@ export default class TokenAuthService {
   verifyToken({ token }) {
     const { engine, expiresIn, algorithm, keys } = this.tokenConfig;
     let secret = null;
-    if (!keys.privateKey) {
-      throw new Error('TokenAuthService:verifyToken() bad configuration, need at least a keys.privateKey', algorithm);
-    }
-    if (algorithm.charAt(0) === 'H') {
+    if (algorithm.charAt(0) === 'H' && typeof keys.privateKey === 'string') {
       secret = keys.privateKey;
-    } else if (algorithm.charAt(0) === 'R') {
-      if (!keys.publicKey) {
-        throw new Error('TokenAuthService:verifyToken() bad configuration, need a keys.publicKey with RSA algorithm', algorithm);
-      }
+    } else if (algorithm.charAt(0) === 'R' && typeof keys.publicKey === 'string') {
       secret = keys.publicKey;
     } else {
+      if ((!keys.privateKey && algorithm.charAt(0) === 'H') || !keys.publicKey) {
+        throw new Error('TokenAuthService:verifyToken() bad configuration, need a keys.publicKey with RSA algorithm or keys.privateKey with HMAC', algorithm);
+      }
       throw new Error('TokenAuthService:verifyToken() unsupported encryption algorithm', algorithm);
     }
 
@@ -74,6 +71,10 @@ export default class TokenAuthService {
     const { engine, expiresIn, algorithm, keys } = this.tokenConfig;
     const secret = keys.privateKey;
 
+    const secretOrPrivateKey = algorithm.charAt(0) === 'R'
+      ? 'privateKey'
+      : 'secret';
+
     const options = {
       header: {
         alg: algorithm
@@ -82,7 +83,7 @@ export default class TokenAuthService {
         aud: user.UUID,
         exp: expiresIn(),
       },
-      secret
+      [secretOrPrivateKey]: secret,
     };
     const token = engine.sign(options);
     this.events.emit('TokenAuthService:generateToken:success', token);
