@@ -15,8 +15,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const hoursBeforeExpire = process.env.JWT_HOURS_BEFORE_EXPIRE || 1;
 const algorithm = process.env.JWT_ALGORITHM || 'HMAC';
-const privateKey = process.env.JWT_PRIVATE_KEY || null;
-const publicKey = process.env.JWT_PUBLIC_KEY || null;
+const privateKey = process.env.JWT_KEY_PRIVATE || null;
+const publicKey = process.env.JWT_KEY_PUBLIC || null;
 const keys = {};
 
 if (algorithm.charAt(0) === 'H' && typeof privateKey === 'string') {
