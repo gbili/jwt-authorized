@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import TokenAuthService from '../services/TokenAuthService';
 import { TokenUser } from '../models';
 import tokenConfigGenerator from '../config/tokenConfigGenerator';
