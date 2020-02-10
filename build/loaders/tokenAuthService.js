@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+require("dotenv/config");
+
 var _TokenAuthService = _interopRequireDefault(require("../services/TokenAuthService"));
 
 var _models = require("../models");
