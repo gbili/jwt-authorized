@@ -11,12 +11,12 @@ Use Json Web Tokens to authorize requests via `Authorization: Bearer <your-token
 
 **IMPORTANT**: add the private key to your env, if you are using `HS256` (default)
 ```javascript
-process.env.JWT_PRIVATE_KEY = 'mysecret key'
+process.env.JWT_KEY_PRIVATE = 'mysecret key'
 ```
 **IMPORTANT**: add the private plus public keys to your .env, if you are using `RS256`
 ```javascript
-process.env.JWT_PUBLIC_KEY = 'some generated public key'
-process.env.JWT_PUBLIC_KEY = 'some generated public key'
+process.env.JWT_KEY_PUBLIC = 'some generated public key'
+process.env.JWT_KEY_PIRVATE = 'some generated private key'
 ```
 **IMPORTANT**: if you are using RS256, you need to generate private public key pairs. If you are using mac it is done with the following command (in your project's root dir):
 
@@ -28,9 +28,9 @@ openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
 
 Once the keys have been generated, you will need to `.gitignore` them. To do so, add a line to `.gitignore` with `*RS256.key*`.
 
-You then need to add the private key to your `.env` file under the key: `JWT_PRIVATE_KEY`. Since the key is in multiple lines in `jwtRSA256.key`, you will need to make it a single line by adding a `\n` at the end of each line, and then assembling the lines in a single line. With a vim macro you can achieve this easily:
+You then need to add the private key to your `.env` file under the key: `JWT_KEY_PRIVATE`. Since the key is in multiple lines in `jwtRSA256.key`, you will need to make it a single line by adding a `\n` at the end of each line, and then assembling the lines in a single line. With a vim macro you can achieve this easily:
 
-1. Copy the `jwtRSA256.key` key and past it as is, **at the end** of your `.env`
+1. Copy the `jwtRSA256.key` key and paste it as is, **at the end** of your `.env`
 2. Then go to the first line of your key (where it says `------ BEGIN RSA PRIVATE KEY ------`, this is part of the key do not remove it) and record this macro by typing `qa$Jxi\n` then `^C` (`ctrl+c`), finally type `q` (dont move your cursor for next step).
 3. With the recorded macro under register `a` we simply type `100q@a` and see the magic operate.
 
