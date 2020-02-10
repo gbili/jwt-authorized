@@ -7,6 +7,7 @@ jobs:
       env:
         - CODECOV_TOKEN="f96b3547-9fde-414a-9b33-e2d258138970"
         - NODE_ENV=development
+        - GH_TOKEN="34cf7a76e266f3c7a619bd732b0ced734f0a9c6f"
       node_js: lts/*
       script:
         - npm t
@@ -15,6 +16,7 @@ jobs:
       language: node_js
       env:
         - NODE_ENV=development
+        - GH_TOKEN="34cf7a76e266f3c7a619bd732b0ced734f0a9c6f"
       node_js: lts/*
       script:
         - npm run semantic-release

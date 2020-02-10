@@ -1,6 +1,6 @@
 {
   "name": "jwt-authorized",
-  "version": "v0.2.0",
+  "version": "0.0.0-development",
   "description": "Json Web Token Authorization Strategy",
   "main": "build/index.js",
   "scripts": {
@@ -46,19 +46,20 @@
     "@babel/register": "7.4.4",
     "chai": "4.2.0",
     "chai-as-promised": "^7.1.1",
-    "codecov": "^3.5.0",
+    "codecov": "^3.6.5",
     "di-why": "^0.14.2",
-    "dotenv": "^8.0.0",
+    "dotenv": "^8.2.0",
     "ghooks": "^2.0.4",
     "marked": "^0.6.3",
     "mocha": "6.1.4",
     "nodemon": "1.19.1",
     "nyc": "^14.1.1",
-    "saylo": "^0.2.1",
-    "semantic-release": "^15.13.19"
+    "saylo": "^0.2.3",
+    "semantic-release": "^17.0.2"
   },
   "dependencies": {
-    "jws": "^3.2.2"
+    "jws": "^3.2.2",
+    "semantic-release-cli": "^5.2.3"
   },
   "directories": {
     "test": "test"
