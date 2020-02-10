@@ -8,7 +8,7 @@ describe('tokenConfigGenerator', function() {
   describe(`tokenConfigGenerator({ expireTokensEveryNHours: 1})`, function() {
 
     it('should return an object with properties', async function() {
-       expect(Object.keys(tokenConfigGenerator({ expireTokensEveryNHours: 1 }))).to.be.deep.equal([
+       expect(Object.keys(tokenConfigGenerator({ expireTokensEveryNHours: 1, algorithm: 'HMAC', keys: { privateKey: 'secret' } }))).to.be.deep.equal([
         'engine',
         'expiresIn',
         'now',
@@ -22,7 +22,7 @@ describe('tokenConfigGenerator', function() {
   describe(`tokenConfigGenerator({ expireTokensEveryNHours: 1}).expiresIn`, function() {
 
     it('should be a function', function() {
-      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1 });
+      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1, algorithm: 'HMAC', keys: { privateKey: 'secret' } });
       expect(expiresIn).to.be.a('function');
     });
 
@@ -31,17 +31,17 @@ describe('tokenConfigGenerator', function() {
   describe(`tokenConfigGenerator({ expireTokensEveryNHours: 1}).expiresIn()`, function() {
 
     it('should return an number', function() {
-      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1 });
+      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1, algorithm: 'HMAC', keys: { privateKey: 'secret' } });
       expect(expiresIn()).to.be.a('number');
     });
 
     it('should return an epoch in seconds greater than now', function() {
-      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1 });
+      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1, algorithm: 'HMAC', keys: { privateKey: 'secret' } });
       expect(expiresIn()).to.be.above(nowEpochInSeconds());
     });
 
     it('should return an epoch in seconds smaller than 1 hour + 1 min from now', function() {
-      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1 });
+      const { expiresIn } = tokenConfigGenerator({ expireTokensEveryNHours: 1, algorithm: 'HMAC', keys: { privateKey: 'secret' } });
       const numSecondsIn1H1min = 60 * 60 + 60;
       expect(expiresIn()).to.be.below(nowEpochInSeconds() + numSecondsIn1H1min);
     });

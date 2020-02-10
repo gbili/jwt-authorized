@@ -4,14 +4,17 @@ const nHoursFromNow = n => {
   return _ => (Math.floor(Date.now() / 1000) + n * (60 * 60));
 };
 
-export default function({ expireTokensEveryNHours }) {
+export default function({ expireTokensEveryNHours, algorithm, keys }) {
+  if (!algorithm || (!keys.publicKey && !keys.privateKey)) {
+    console.log(algorithm, keys);
+    throw new Error(`Bad configuration, not enough keys need RSA with either publicKey or privateKey, or HMAC with privateKey`);
+  }
+
   return {
     engine: jws,
     expiresIn: nHoursFromNow(expireTokensEveryNHours),
     now: nHoursFromNow(0),
-    algorithm: 'HS256',
-    keys: {
-      privateKey: process.env.JWT_KEY_PRIVATE,
-    },
+    algorithm,
+    keys,
   };
 };
