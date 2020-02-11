@@ -113,12 +113,18 @@ class TokenAuthService {
     } = this.tokenConfig;
     const secret = keys.privateKey;
     const secretOrPrivateKey = algorithm.charAt(0) === 'R' ? 'privateKey' : 'secret';
+    const userID = user && (typeof user.UUID !== 'undefined' && user.UUID || typeof user.ID !== 'undefined' && user.ID || null);
+
+    if (null === userID) {
+      throw new Error('TokenAuthService:generateToken() Error: a param with prop { user } must have either a UUID or ID property', user);
+    }
+
     const options = {
       header: {
         alg: algorithm
       },
       payload: {
-        aud: user.UUID,
+        aud: userID,
         exp: expiresIn()
       },
       [secretOrPrivateKey]: secret
