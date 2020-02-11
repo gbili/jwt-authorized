@@ -5,19 +5,19 @@ import tokenConfigGenerator from '../config/tokenConfigGenerator';
 
 const hoursBeforeExpire = process.env.JWT_HOURS_BEFORE_EXPIRE || 1;
 const algorithm = process.env.JWT_ALGORITHM || 'HS256';
-const privateKey = process.env.JWT_KEY_PRIVATE || null;
-const publicKey = process.env.JWT_KEY_PUBLIC || null;
+const privateKey = (process.env.JWT_KEY_PRIVATE || '').split('\\n').join("\n");
+const publicKey = (process.env.JWT_KEY_PUBLIC || '').split('\\n').join("\n");
 
 const keys = {};
 
-if (algorithm.charAt(0) === 'H' && typeof privateKey === 'string') {
+if (algorithm.charAt(0) === 'H' && privateKey.length > 0) {
   keys.privateKey = privateKey;
 }
 if (algorithm.charAt(0) === 'R') {
-  if (typeof privateKey === 'string') {
+  if (privateKey.length > 0) {
     keys.privateKey = privateKey;
   }
-  if (typeof publicKey === 'string') {
+  if (publicKey.length > 0) {
     keys.publicKey = publicKey;
   }
 }
