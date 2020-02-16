@@ -1,3 +1,5 @@
+# build
+build/
 # RSA
 *RS256.key*
 # nyc

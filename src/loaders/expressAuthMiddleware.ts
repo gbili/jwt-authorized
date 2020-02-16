@@ -1,5 +1,7 @@
-export default {
-  instance: function(req, res, next) {
+import { LoadDictElement } from "di-why/build/src/DiContainer";
+
+const loadDictElement: LoadDictElement = {
+  instance: function(req: { headers: { authorization: string; }; }, res: { locals: { token: any; }; }, next: (arg0?: Error) => any) {
     if (!req.headers || !req.headers.authorization) {
       return next();
     }
@@ -16,10 +18,12 @@ export default {
       }
     }
 
-    return next(new Error('credentials_bad_scheme', { message: 'Format is Authorization: Bearer [token]' }));
+    const messageDetail = { message: 'Format is Authorization: Bearer [token]' };
+    return next(new Error(`credentials_bad_scheme: ${messageDetail}`));
   },
   async after({ me, serviceLocator }) {
     const app = await serviceLocator.get('app');
     app.use(me);
   },
 };
+export default loadDictElement;
