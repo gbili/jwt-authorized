@@ -86,7 +86,7 @@ export default class TokenAuthService {
    * then it makes sense to switch to RSA in order to withhold the signing
    * power within the signing server owners.
    */
-  generateToken({ user }: UserInfoInstance) {
+  generateToken(user: UserInfoInstance) {
     const { engine, expiresIn, algorithm, keys } = this.tokenConfig;
     const secret = keys.privateKey;
 
