@@ -1,6 +1,6 @@
 {
   "name": "jwt-authorized",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Json Web Token Authorization Strategy",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -42,7 +42,7 @@
     "chai": "4.2.0",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.6.5",
-    "di-why": "^0.15.0",
+    "di-why": "^0.15.2",
     "dotenv": "^8.2.0",
     "ghooks": "^2.0.4",
     "marked": "0.8.0",

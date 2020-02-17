@@ -2,7 +2,7 @@ import 'dotenv/config';
 import TokenAuthService from '../services/TokenAuthService';
 import { TokenUser } from '../models';
 import tokenConfigGenerator from '../config/tokenConfigGenerator';
-import { LoadDictElement } from 'di-why/build/src/DiContainer';
+import { LoadDictElement, GetInstanceType } from 'di-why/build/src/DiContainer';
 import { Algorithm } from 'jws';
 
 export type Keys = {
@@ -40,7 +40,7 @@ const keys: Keys = ((algorithm: string): Keys | never => {
   throw new Error(`Algorithm ${algorithm} is not supported, use HS256 or RS256`);
 })(algorithm);
 
-const loadDictElement: LoadDictElement = {
+const loadDictElement: LoadDictElement<GetInstanceType<typeof TokenAuthService>> = {
   constructible: TokenAuthService,
   deps: {
     models: {
