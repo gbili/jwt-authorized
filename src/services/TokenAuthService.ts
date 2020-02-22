@@ -1,6 +1,7 @@
 import { EventsInterface } from "../loaders/events";
 import { TokenConfig } from "../config/tokenConfigGenerator";
 import { TokenUserConstructor, UserInfoInstance } from "../models/TokenUser";
+import { canUsePrivateKey, canUsePublicKey } from "../utils/canUse";
 
 export type TokenPayload = {
   aud: string;
@@ -45,14 +46,11 @@ export default class TokenAuthService {
   verifyToken({ token }: { token: string }): TokenPayload | false | never {
     const { engine, algorithm, keys } = this.tokenConfig;
     let secret = null;
-    if (algorithm.charAt(0) === 'H' && typeof keys.privateKey === 'string') {
+    if (canUsePrivateKey(algorithm, keys)) {
       secret = keys.privateKey;
-    } else if (algorithm.charAt(0) === 'R' && typeof keys.publicKey === 'string') {
+    } else if (canUsePublicKey(algorithm, keys)) {
       secret = keys.publicKey;
     } else {
-      if ((!keys.privateKey && algorithm.charAt(0) === 'H') || !keys.publicKey) {
-        throw new Error(`TokenAuthService:verifyToken() bad configuration, need a keys.publicKey with RSA algorithm or keys.privateKey with HMAC ${algorithm}`);
-      }
       throw new Error(`TokenAuthService:verifyToken() unsupported encryption algorithm ${algorithm}`);
     }
 
@@ -88,6 +86,9 @@ export default class TokenAuthService {
    */
   generateToken(user: UserInfoInstance) {
     const { engine, expiresIn, algorithm, keys } = this.tokenConfig;
+    if (!canUsePrivateKey(algorithm, keys)) {
+      throw new Error(`In order to sign and generate tokens with the supported algorithms a "privateKey" is required`);
+    }
     const secret = keys.privateKey;
 
     const secretOrPrivateKey = algorithm.charAt(0) === 'R'

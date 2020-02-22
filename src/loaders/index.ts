@@ -12,6 +12,7 @@ export type LoadThroughDiProps = {
 };
 
 const loadThroughDi = function({ di, diMethodName, logger, events }: LoadThroughDiProps) {
+  console.log('totototo: ', tokenAuthService);
   const injectionDict: LoadDict = {
     tokenAuthService,
   };

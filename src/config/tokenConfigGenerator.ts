@@ -1,5 +1,5 @@
 import jws, { Algorithm } from 'jws';
-import { Keys } from '../loaders/tokenAuthService';
+import { Keys, canUsePublicKey, canUsePrivateKey } from '../utils/canUse';
 
 export type TokenConfig = {
   engine: typeof jws;
@@ -14,8 +14,8 @@ const nHoursFromNow = (n: number) => {
 };
 
 export default function({ expireTokensEveryNHours, algorithm, keys }: { expireTokensEveryNHours: number; algorithm: Algorithm; keys: Keys }): TokenConfig {
-  if (!algorithm || (!keys.publicKey && !keys.privateKey)) {
-    throw new Error(`Bad configuration, not enough keys need RSA with either publicKey or privateKey, or HMAC with privateKey`);
+  if (!canUsePublicKey(algorithm, keys) && !canUsePrivateKey(algorithm, keys)) {
+    throw new Error(`Bad configuration, not enough keys supplied to verify-only or sign and verify with the current algorithm`);
   }
   return {
     engine: jws,
