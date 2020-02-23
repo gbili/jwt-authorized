@@ -44,6 +44,12 @@ export default class TokenAuthService {
   }
 
   verifyToken({ token }: { token: string }): TokenPayload | false | never {
+    if (token === undefined) {
+      throw new Error('verifyToken({ token }), token param not provided (undefined)');
+    }
+    if (typeof token !== 'string' || token.split('.').length !== 3) {
+      throw new Error('verifyToken({ token }), token param must be a string with two dots');
+    }
     const { engine, algorithm, keys } = this.tokenConfig;
     let secret = null;
     if (canUsePrivateKey(algorithm, keys)) {
