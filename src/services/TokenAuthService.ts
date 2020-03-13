@@ -23,6 +23,10 @@ export default class TokenAuthService {
   authenticateTokenStrategy({ token }: { token: string }) {
     const { TokenUser } = this.models;
 
+    if (typeof token !== 'string') {
+      throw new Error('TokenAuthService:authenticateTokenStrategy: no string token was provided, ensure that you pass a string token to this method');
+    }
+
     const payload = this.verifyToken({ token });
 
     if (!payload) {
