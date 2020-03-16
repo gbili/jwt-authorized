@@ -1,6 +1,6 @@
 {
   "name": "jwt-authorized",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "Json Web Token Authorization Strategy",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
