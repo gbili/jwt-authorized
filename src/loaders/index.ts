@@ -1,4 +1,4 @@
-import tokenAuthService from './tokenAuthService';
+import tokenAuthServiceCallable from './tokenAuthServiceCallable';
 import DiContainer from 'di-why';
 import { LoggerInterface, LoadDict } from 'di-why/build/src/DiContainer';
 import { EventsInterface } from './events';
@@ -12,9 +12,8 @@ export type LoadThroughDiProps = {
 };
 
 const loadThroughDi = function({ di, diMethodName, logger, events }: LoadThroughDiProps) {
-  console.log('totototo: ', tokenAuthService);
   const injectionDict: LoadDict = {
-    tokenAuthService,
+    tokenAuthService: tokenAuthServiceCallable(),
   };
 
   if (!logger && !di.has('logger')) {
@@ -38,5 +37,5 @@ const loadThroughDi = function({ di, diMethodName, logger, events }: LoadThrough
   return di;
 };
 
-export { loadThroughDi, tokenAuthService }
+export { loadThroughDi, tokenAuthServiceCallable }
 export default loadThroughDi;

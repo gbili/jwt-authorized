@@ -1,4 +1,6 @@
 import 'dotenv/config';
 import loadDictElementCallable from './tokenAuthServiceCallable';
 
-export default loadDictElementCallable();
+const tokenAuthService = loadDictElementCallable();
+
+export default tokenAuthService;
