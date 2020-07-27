@@ -15,6 +15,7 @@ export default function callableLoadDictElement(
   privateKey = privateKey.split('\\n').join("\n");
   publicKey = publicKey.split('\\n').join("\n");
   const algoAndKeys = getValidAlgorithmAndKeysObject(algorithm, privateKey, publicKey);
+
   const loadDictElement: LoadDictElement<GetInstanceType<typeof TokenAuthService>> = {
     constructible: TokenAuthService,
     deps: {
