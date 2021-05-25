@@ -8,6 +8,8 @@ export type TokenPayload = {
   exp: number;
 }
 
+export type TokenConfigOverride = Partial<TokenConfig>;
+
 export default class TokenAuthService {
 
   public models: { TokenUser: TokenUserConstructor };
@@ -81,8 +83,8 @@ export default class TokenAuthService {
     const payload: TokenPayload = JSON.parse(jsonPayload);
 
     if (!payload.exp || !payload.aud) {
-      this.events.emit('TokenAuthService:verifytoken:fail token was malformed by server', token);
-      throw new Error(`TokenAuthService:verifytoken() authentication fail ${token}`);
+      this.events.emit('TokenAuthService:verifyToken:fail token was malformed by server', token);
+      throw new Error(`TokenAuthService:verifyToken() authentication fail ${token}`);
     }
 
     return payload;
@@ -94,8 +96,12 @@ export default class TokenAuthService {
    * then it makes sense to switch to RSA in order to withhold the signing
    * power within the signing server owners.
    */
-  generateToken(user: UserInfoInstance) {
-    const { engine, expiresIn, algorithm, keys } = this.tokenConfig;
+  generateToken(user: UserInfoInstance, configOverride: TokenConfigOverride = {}) {
+    const finalConfig = {
+      ...this.tokenConfig,
+      ...configOverride,
+    };
+    const { engine, expiresIn, algorithm, keys } = finalConfig;
     if (!canUsePrivateKey(algorithm, keys)) {
       throw new Error(`In order to sign and generate tokens with the supported algorithms a "privateKey" is required`);
     }

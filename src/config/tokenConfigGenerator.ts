@@ -1,11 +1,14 @@
 import jws, { Algorithm } from 'jws';
 import { Keys, canUsePublicKey, canUsePrivateKey } from '../utils/canUse';
 
+export type JWS = typeof jws;
+export type JSWAlgorithm = Algorithm;
+
 export type TokenConfig = {
-  engine: typeof jws;
+  engine: JWS;
   expiresIn: () => number;
   now: () => number;
-  algorithm: Algorithm;
+  algorithm: JSWAlgorithm;
   keys: Keys,
 }
 
