@@ -9,8 +9,8 @@ export interface TokenUserInstance extends UserInfoInstance {
 
 export type TokenUserConstuctorParam = {
   userInfo: UserInfoInstance;
-  token: string; 
-} 
+  token: string;
+}
 
 export interface TokenUserConstructor {
   new(param: TokenUserConstuctorParam): TokenUserInstance;
