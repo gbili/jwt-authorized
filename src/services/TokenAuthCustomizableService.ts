@@ -9,9 +9,8 @@ export type TokenPayload = {
 }
 
 export type TokenPayloadOverride = {
-  aud?: string;
-  exp?: number;
-}
+  [k: string | number]: string | number | Date | null;
+};
 
 export type TokenConfigOverride = Partial<TokenConfig>;
 
@@ -27,7 +26,7 @@ export default class TokenAuthCustomizableService {
     this.events = events;
   }
 
-  authenticateTokenStrategy({ token, tokenConfig }: { token: string; tokenConfig: TokenConfig; }) {
+  authenticateTokenStrategy({ token, tokenConfig }: { token: string; tokenConfig: TokenConfigOverride; }) {
     const { TokenUser } = this.models;
 
     if (typeof token !== 'string') {
@@ -53,13 +52,13 @@ export default class TokenAuthCustomizableService {
       throw new Error(`TokenAuthService:authenticateTokenStrategy() authentication fail, please login again ${token}`);
     }
 
-    const tokenUser = new TokenUser({ userInfo: { UUID }, token });
+    const tokenUser = new TokenUser({ userInfo: { UUID, ...payload }, token });
     this.events.emit('TokenAuthService:authenticateTokenStrategy:success', tokenUser);
 
     return tokenUser;
   }
 
-  verifyToken<P extends TokenPayload = TokenPayload>({ token, tokenConfig }: { token: string; tokenConfig: TokenConfig; }): P | false | never {
+  verifyToken<P extends TokenPayload = TokenPayload>({ token, tokenConfig }: { token: string; tokenConfig: TokenConfigOverride; }): P | false | never {
     if (token === undefined) {
       throw new Error('verifyToken({ token }), token param not provided (undefined)');
     }
@@ -109,7 +108,7 @@ export default class TokenAuthCustomizableService {
    * then it makes sense to switch to RSA in order to withhold the signing
    * power within the signing server owners.
    */
-  generateToken<P extends TokenPayloadOverride>({ user, tokenConfig, payload }: { user: UserInfoInstance, tokenConfig: TokenConfigOverride, payload: P }) {
+  generateToken<P extends TokenPayloadOverride>({ user, tokenConfig, payload }: { user: UserInfoInstance, tokenConfig: TokenConfigOverride, payload?: P }) {
     const finalConfig = {
       ...this.tokenConfig,
       ...tokenConfig,
@@ -130,10 +129,12 @@ export default class TokenAuthCustomizableService {
       throw new Error(`TokenAuthService:generateToken() Error: a param with prop { user } must have either a UUID or ID property ${user}`);
     }
 
+    const enhancedPayload = payload || ({} as P);
+
     const finalPayload: TokenPayload & P = {
       aud: userID,
       exp: expiresIn(),
-      ...payload,
+      ...enhancedPayload,
     }
 
     const options = {
@@ -143,6 +144,7 @@ export default class TokenAuthCustomizableService {
       payload: finalPayload,
       [secretOrPrivateKey]: secret,
     };
+
     const token: string = engine.sign(options);
     this.events.emit('TokenAuthService:generateToken:success', token);
 
