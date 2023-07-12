@@ -5,7 +5,10 @@ export default class HeaderAuthTokenExtractor {
     return async function ({ req }: { req: { headers?: { authorization?: string; }; }; }): Promise<Context & { token?: string; }> {
 
       if (!req.headers || !req.headers.authorization) {
-        return context;
+        return {
+          ...context,
+          req,
+        };
       }
 
       const parts = req.headers.authorization.split(' ');
@@ -16,7 +19,10 @@ export default class HeaderAuthTokenExtractor {
         context.token = parts[1];
       }
 
-      return context;
+      return {
+        ...context,
+        req,
+      };
     };
   }
 }
