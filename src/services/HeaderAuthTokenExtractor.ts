@@ -1,8 +1,11 @@
+import { IncomingMessage } from "http";
+
 type Context = { [k: string]: any; }
+type RequestProp = { req: IncomingMessage };
 
 export default class HeaderAuthTokenExtractor {
   static getAsyncContextReqMethod(context: Context) {
-    return async function ({ req }: { req: { headers?: { authorization?: string; }; }; }): Promise<Context & { token?: string; }> {
+    return async function ({ req }: RequestProp): Promise<Context & { token?: string; } & RequestProp> {
 
       if (!req.headers || !req.headers.authorization) {
         return {
