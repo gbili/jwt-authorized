@@ -108,7 +108,7 @@ export default class TokenAuthCustomizableService {
    * then it makes sense to switch to RSA in order to withhold the signing
    * power within the signing server owners.
    */
-  generateToken<P extends TokenPayloadOverride>({ user, tokenConfig, payload }: { user: UserInfoInstance, tokenConfig: TokenConfigOverride, payload: P }) {
+  generateToken<P extends TokenPayloadOverride>({ tokenConfig, payload }: { user?: UserInfoInstance, tokenConfig: TokenConfigOverride, payload: P }) {
     const finalConfig = {
       ...this.tokenConfig,
       ...tokenConfig,
@@ -122,12 +122,6 @@ export default class TokenAuthCustomizableService {
     const secretOrPrivateKey = algorithm.charAt(0) === 'R'
       ? 'privateKey'
       : 'secret';
-
-    const userID: string = user && (user.UUID || user.ID || null);
-
-    if (null === userID) {
-      throw new Error(`TokenAuthService:generateToken() Error: a param with prop { user } must have either a UUID or ID property ${user}`);
-    }
 
     if (!payload.aud || payload.aud === "") {
       throw new Error(`TokenAuthService:generateToken() Error: a param with prop { payload } must have been set and have aud property ${payload}`);
