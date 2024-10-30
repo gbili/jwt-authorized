@@ -9,7 +9,7 @@ export type TokenPayload = {
 }
 
 export type TokenPayloadOverride = {
-  [k: string | number]: string | number | Date | null;
+  [k: string]: string;
 };
 
 export type TokenConfigOverride = Partial<TokenConfig>;
@@ -108,7 +108,7 @@ export default class TokenAuthCustomizableService {
    * then it makes sense to switch to RSA in order to withhold the signing
    * power within the signing server owners.
    */
-  generateToken<P extends TokenPayloadOverride>({ user, tokenConfig, payload }: { user: UserInfoInstance, tokenConfig: TokenConfigOverride, payload?: P }) {
+  generateToken<P extends TokenPayloadOverride>({ user, tokenConfig, payload }: { user: UserInfoInstance, tokenConfig: TokenConfigOverride, payload: P }) {
     const finalConfig = {
       ...this.tokenConfig,
       ...tokenConfig,
@@ -129,10 +129,14 @@ export default class TokenAuthCustomizableService {
       throw new Error(`TokenAuthService:generateToken() Error: a param with prop { user } must have either a UUID or ID property ${user}`);
     }
 
+    if (!payload.aud || payload.aud === "") {
+      throw new Error(`TokenAuthService:generateToken() Error: a param with prop { payload } must have been set and have aud property ${payload}`);
+    }
+
     const enhancedPayload = payload || ({} as P);
 
     const finalPayload: TokenPayload & P = {
-      aud: userID,
+      aud: payload.aud,
       exp: expiresIn(),
       ...enhancedPayload,
     }
