@@ -86,7 +86,7 @@ export default class TokenAuthCustomizableService {
     const tokenMatchesSecret = engine.verify(token, algorithm, secret);
     if (!tokenMatchesSecret) {
       this.events.emit('TokenAuthService:verifyToken:fail', token);
-      return false;
+      throw new Error(`TokenAuthService:verifyToken() authentication fail bad secret`);
     }
 
     const { payload: jsonPayload } = engine.decode(token);
@@ -94,19 +94,19 @@ export default class TokenAuthCustomizableService {
 
     if (!jsonPayload) {
       this.events.emit('TokenAuthService:verifyToken:fail', token);
-      throw new Error(`TokenAuthService:verifyToken() authentication fail provided: ${token}`);
+      throw new Error(`TokenAuthService:verifyToken() authentication fail unable to decode, token: ${token}`);
     }
 
     const payload: P = JSON.parse(jsonPayload);
 
     if (!payload.exp || !payload.aud) {
       this.events.emit('TokenAuthService:verifyToken:fail token was malformed by server', token);
-      throw new Error(`TokenAuthService:verifyToken() authentication fail ${token}`);
+      throw new Error(`TokenAuthService:verifyToken() authentication fail missing exp or aud, token: ${token}`);
     }
 
     if (tokenConfig.requiredAud && payload.aud !== tokenConfig.requiredAud) {
       this.events.emit('TokenAuthService:verifyToken:fail', token);
-      return false;
+      throw new Error(`TokenAuthService:verifyToken() authentication fail service impersonation. requiredAud: ${this.tokenConfig.requiredAud}, aud: ${payload.aud}, token: ${token}`);
     }
 
     return payload;

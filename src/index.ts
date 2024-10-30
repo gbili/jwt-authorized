@@ -1,9 +1,8 @@
-import { loadThroughDi, tokenAuthCustomizableServiceCallable, tokenAuthServiceCallable } from './loaders';
-import TokenAuthService from './services/TokenAuthService';
+import { loadThroughDi, tokenAuthCustomizableServiceCallable } from './loaders';
 import HeaderAuthTokenExtractor from './services/HeaderAuthTokenExtractor';
 import { TokenUser } from './models';
 import tokenConfigGenerator from './config/tokenConfigGenerator';
 import TokenAuthCustomizableService from './services/TokenAuthCustomizableService';
 
-export { TokenAuthService, TokenAuthCustomizableService, HeaderAuthTokenExtractor, TokenUser, tokenConfigGenerator, loadThroughDi, tokenAuthServiceCallable, tokenAuthCustomizableServiceCallable }
+export { TokenAuthCustomizableService, HeaderAuthTokenExtractor, TokenUser, tokenConfigGenerator, loadThroughDi, tokenAuthCustomizableServiceCallable }
 export default loadThroughDi;
