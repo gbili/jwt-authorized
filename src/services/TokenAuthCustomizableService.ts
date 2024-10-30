@@ -33,14 +33,19 @@ export default class TokenAuthCustomizableService {
       throw new Error('TokenAuthService:authenticateTokenStrategy: no string token was provided, ensure that you pass a string token to this method');
     }
 
-    const payload = this.verifyToken({ token, tokenConfig });
+    const payload = this.verifyToken<TokenPayload & { UUID?: string; }>({ token, tokenConfig });
 
     if (!payload) {
       this.events.emit('TokenAuthService:authenticateTokenStrategy:fail wrong secret', token);
       throw new Error(`TokenAuthService:authenticateTokenStrategy() authentication fail, please login again ${token}`);
     }
 
-    const { exp: expirationTime, aud: UUID, } = payload;
+    const { exp: expirationTime, UUID } = payload;
+
+    if (!UUID) {
+      this.events.emit('TokenAuthService:authenticateTokenStrategy:fail needs someone to authenticate', token);
+      throw new Error(`TokenAuthService:authenticateTokenStrategy() authentication fail, ask your devs to pass a UUID in the token.`);
+    }
 
     const finalTokenConfig = {
       ...this.tokenConfig,
@@ -99,15 +104,14 @@ export default class TokenAuthCustomizableService {
       throw new Error(`TokenAuthService:verifyToken() authentication fail ${token}`);
     }
 
+    if (tokenConfig.requiredAud && payload.aud !== tokenConfig.requiredAud) {
+      this.events.emit('TokenAuthService:verifyToken:fail', token);
+      return false;
+    }
+
     return payload;
   }
 
-  /**
-   * IMPORTANT: If you are going to verify from a different server than the one who signs,
-   * and that server is to be managed by someone else than the signing server,
-   * then it makes sense to switch to RSA in order to withhold the signing
-   * power within the signing server owners.
-   */
   generateToken<P extends TokenPayloadOverride>({ tokenConfig, payload }: { user?: UserInfoInstance, tokenConfig: TokenConfigOverride, payload: P }) {
     const finalConfig = {
       ...this.tokenConfig,
@@ -123,7 +127,7 @@ export default class TokenAuthCustomizableService {
       ? 'privateKey'
       : 'secret';
 
-    if (!payload.aud || payload.aud === "") {
+    if (!payload.aud) {
       throw new Error(`TokenAuthService:generateToken() Error: a param with prop { payload } must have been set and have aud property ${payload}`);
     }
 

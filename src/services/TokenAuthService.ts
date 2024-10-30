@@ -29,14 +29,19 @@ export default class TokenAuthService {
       throw new Error('TokenAuthService:authenticateTokenStrategy: no string token was provided, ensure that you pass a string token to this method');
     }
 
-    const payload = this.verifyToken({ token });
+    const payload = this.verifyToken<TokenPayload & { UUID?: string; }>({ token });
 
     if (!payload) {
       this.events.emit('TokenAuthService:authenticateTokenStrategy:fail wrong secret', token);
       throw new Error(`TokenAuthService:authenticateTokenStrategy() authentication fail, please login again ${token}`);
     }
 
-    const { exp: expirationTime, aud: UUID, } = payload;
+    const { exp: expirationTime, UUID } = payload;
+
+    if (!UUID) {
+      this.events.emit('TokenAuthService:authenticateTokenStrategy:fail needs someone to authenticate', token);
+      throw new Error(`TokenAuthService:authenticateTokenStrategy() authentication fail, ask your devs to pass a UUID in the token.`);
+    }
 
     if (expirationTime <= this.tokenConfig.now()) {
       this.events.emit('TokenAuthService:authenticateTokenStrategy:fail expired token', token);
@@ -49,7 +54,7 @@ export default class TokenAuthService {
     return tokenUser;
   }
 
-  verifyToken({ token }: { token: string }): TokenPayload | false | never {
+  verifyToken<P extends TokenPayload = TokenPayload>({ token }: { token: string }): P | false | never {
     if (token === undefined) {
       throw new Error('verifyToken({ token }), token param not provided (undefined)');
     }
@@ -80,11 +85,16 @@ export default class TokenAuthService {
       throw new Error(`TokenAuthService:verifyToken() authentication fail provided: ${token}`);
     }
 
-    const payload: TokenPayload = JSON.parse(jsonPayload);
+    const payload: P = JSON.parse(jsonPayload);
 
     if (!payload.exp || !payload.aud) {
       this.events.emit('TokenAuthService:verifyToken:fail token was malformed by server', token);
       throw new Error(`TokenAuthService:verifyToken() authentication fail ${token}`);
+    }
+
+    if (this.tokenConfig.requiredAud && payload.aud !== this.tokenConfig.requiredAud) {
+      this.events.emit('TokenAuthService:verifyToken:fail', token);
+      return false;
     }
 
     return payload;
