@@ -1,5 +1,5 @@
 import { LoadDictElement } from "di-why/build/src/DiContainer";
-import Logger from "saylo";
+import { Logger } from "saylo";
 
 export type EventsInterface = {
   emit: (...params: any[]) => void;
@@ -9,7 +9,7 @@ const events: LoadDictElement = {
   factory({ logger }: { logger: Logger }) {
     const events: EventsInterface = {
       emit(...params: any[]) {
-        logger.log(params);
+        logger.log('', params);
       },
     };
     return events;

@@ -16,11 +16,11 @@ const loadThroughDi = function({ di, diMethodName, logger, events }: LoadThrough
     tokenAuthCustomizableService: tokenAuthCustomizableServiceCallable(),
   };
 
-  if (!logger && !di.has('logger')) {
+  if (!logger && !di.hasLoaded('logger')) {
     injectionDict.logger = require('./logger');
   }
 
-  if (!events && !di.has('events')) {
+  if (!events && !di.hasLoaded('events')) {
     injectionDict.events = require('./events');
   }
 

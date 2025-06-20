@@ -89,12 +89,20 @@ export default class TokenAuthCustomizableService {
       throw new Error(`TokenAuthService:verifyToken() authentication fail bad secret`);
     }
 
-    const { payload: jsonPayload } = engine.decode(token);
+    const signature = engine.decode(token);
+
+    if (!signature) {
+      this.events.emit('TokenAuthService:verifyToken:fail', token);
+      throw new Error(`TokenAuthService:verifyToken() authentication fail unable to decode, token: ${token}`);
+    }
+
+    const { payload: jsonPayload } = signature
+
     this.events.emit('TokenAuthService:verifyToken:success', jsonPayload);
 
     if (!jsonPayload) {
       this.events.emit('TokenAuthService:verifyToken:fail', token);
-      throw new Error(`TokenAuthService:verifyToken() authentication fail unable to decode, token: ${token}`);
+      throw new Error(`TokenAuthService:verifyToken() authentication fail unable to get jsonPayload: ${token}`);
     }
 
     const payload: P = JSON.parse(jsonPayload);

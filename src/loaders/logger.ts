@@ -1,11 +1,7 @@
-import Logger from 'saylo';
+import { logger } from 'saylo';
 import { LoadDictElement } from 'di-why/build/src/DiContainer';
 
 const loadDictElement: LoadDictElement = {
-  constructible: Logger,
-  deps: {
-    log: true,
-    debug: false
-  },
+  instance: logger,
 };
 export default loadDictElement;
