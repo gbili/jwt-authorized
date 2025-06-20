@@ -4,12 +4,12 @@ type Context = { [k: string]: any; }
 type RequestProp = { req: IncomingMessage };
 
 export default class HeaderAuthTokenExtractor {
-  static getAsyncContextReqMethod(context: Context) {
+  static getAsyncContextReqMethod(sharedContext_DONT_MUTATE_WITH_PER_REQUEST_DATA: Context) {
     return async function ({ req }: RequestProp): Promise<Context & { token?: string; } & RequestProp> {
 
       if (!req.headers || !req.headers.authorization) {
         return {
-          ...context,
+          ...sharedContext_DONT_MUTATE_WITH_PER_REQUEST_DATA,
           req,
         };
       }
@@ -21,7 +21,7 @@ export default class HeaderAuthTokenExtractor {
       }
 
       return {
-        ...context,
+        ...sharedContext_DONT_MUTATE_WITH_PER_REQUEST_DATA,
         token: parts[1],
         req,
       };
