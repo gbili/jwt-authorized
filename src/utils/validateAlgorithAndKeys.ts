@@ -22,7 +22,7 @@ export const validateAlgorithm = (algo: string): Algorithm | never => {
   return algo as Algorithm;
 };
 
-export default function getValidAlgorithmAndKeysObject(algorithm: string, privateKey: string, publicKey: string = ''): ValidAlgorithmAndKeys | never {
+function getValidAlgorithmAndKeysObject(algorithm: string, privateKey: string, publicKey: string = ''): ValidAlgorithmAndKeys | never {
   const validAlgorithm = validateAlgorithm(algorithm);
   if (validAlgorithm.charAt(0) === 'H') {
     if (privateKey.length <= 0) {
@@ -60,3 +60,7 @@ export default function getValidAlgorithmAndKeysObject(algorithm: string, privat
   }
   throw new Error(`Algorithm ${validAlgorithm} is not supported, use HS256 or RS256`);
 }
+
+// Export both as named and default for ESM/CJS compatibility
+export { getValidAlgorithmAndKeysObject };
+export default getValidAlgorithmAndKeysObject;
