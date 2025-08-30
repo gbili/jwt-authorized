@@ -1,6 +1,6 @@
 {
   "name": "jwt-authorized",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Json Web Token Authorization Strategy",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -31,7 +31,7 @@
     "@types/jws": "3.2.10",
     "@types/mocha": "10.0.10",
     "@types/node": "^22.7.1",
-    "chai": "5.2.0",
+    "chai": "6.0.1",
     "chai-as-promised": "^8.0.2",
     "mocha": "^11.7.1"
   },
@@ -39,8 +39,8 @@
     "jws": "^4.0.0"
   },
   "peerDependencies": {
-    "di-why": ">=0.15.0 <1.0.0",
-    "saylo": ">=0.5.0 <1.0.0"
+    "di-why": ">=0.15.0",
+    "saylo": ">=0.5.0"
   },
   "peerDependenciesMeta": {
     "di-why": {
